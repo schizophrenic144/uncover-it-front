@@ -1,0 +1,122 @@
+@keyframes pulse {
+    0% {
+        background-color: #ff0000a8;
+    }
+    50% {
+        background-color: #ff00005e;
+    }
+    100% {
+        background-color: #ff0000a8;
+    }
+}
+
+body {
+    background-color: #000000;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+h1 a {
+    text-align: left;
+    padding-right: 20px;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+}
+
+#top {
+    background-color: #000000;
+    color: #fff;
+    padding: 10px;
+    margin-bottom: 60px;
+}
+
+#top-in {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+#samples::-webkit-scrollbar {
+    display: none;
+}
+
+#samples {
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    color: white;
+    padding: 10px;
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 10px;
+    height: 100%;
+}
+
+#sample {
+    color: white;
+    padding: 10px;
+}
+
+.grid-container2 {
+    
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr; /* Adjust to your needs */
+    gap: 20px;
+}
+
+.grid-container {
+    
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr; /* Adjust to your needs */
+    gap: 20px;
+}
+
+.grid-item {
+    text-align: center;
+}
+
+#legend label {
+    display: block;
+}
+
+#sample a, #sample label {
+    display: block;
+    margin: auto;
+}
+
+#ANAT {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#SHA {
+    display: inline-block;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+    color: white;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-decoration: none;
+    border-radius: 5px;
+    padding: 5px;
+    width: auto;
+}
+
+#SHA:hover {
+    background-color: #444040;
+}
+
+#FAM {
+    background-color: #ff0000;
+    color: rgb(255, 255, 255);
+    padding: 5px;
+    font-size: 1rem; /* Responsive font size */
+    font-weight: bold;
+    border-radius: 10px;
+    animation: pulse 2s infinite;
+    text-shadow: 
+        0 0 5px #ff0000,
+        0 0 10px #ff0000, 
+        0 0 15px #ff0000,
+        0 0 20px #ff0000,
+        0 0 25px #ff0000;
+    max-width: 100%; /* Ensure it fits within its container */
+}
