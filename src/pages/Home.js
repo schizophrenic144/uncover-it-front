@@ -232,6 +232,9 @@ function Home() {
 
   return (
     <div className="App">
+        <script>
+        window.__REACT_DEVTOOLS_GLOBAL_HOOK__.inject = function () {}
+        </script>
         <div id="top">
           <div id="top-in">
             <h1><a href="/">Uncover It</a></h1>
