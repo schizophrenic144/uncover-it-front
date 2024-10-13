@@ -12,9 +12,6 @@ function App() {
 
   return (
     <div className="App">
-      <script>
-        window.__REACT_DEVTOOLS_GLOBAL_HOOK__.inject = function () {}
-      </script>
         <Router>
           <Routes>
             <Route path="/" element={<HomePage />} />

@@ -232,9 +232,6 @@ function Home() {
 
   return (
     <div className="App">
-        <script>
-        window.__REACT_DEVTOOLS_GLOBAL_HOOK__.inject = function () {}
-        </script>
         <div id="top">
           <div id="top-in">
             <h1><a href="/">Uncover It</a></h1>
@@ -277,7 +274,7 @@ function Home() {
           <input type="file" id="fileInput" onChange={handleFileChange} />
           <button type="submit" id="upload" style={{display:uploadButtonDisplay,opacity:opacity,pointerEvents:pointer}}>Upload</button>
           <br/>
-          <label id="f_size">Max filesize: 256Mb</label>
+          <label id="f_size">100Mb Upload | 1.5Gb Mega</label>
         </form>
         <p style={{display:orDisplay}}>or</p>
         <form id="linkForm" onSubmit={handleLinkSubmit}>
