@@ -20,7 +20,7 @@ function Samples() {
     useEffect(() => {
         const getSample = async () => {
             try {
-              const response = await fetch(`/sample/${sampleId}`);
+              const response = await fetch(`/api/sample/${sampleId}`);
               if (!response.ok) {
                 window.location.href = "/404"
                 return;
@@ -31,7 +31,7 @@ function Samples() {
                 family: data.family,
                 sha256: data.sha256,
                 file_name: data.file_name,
-                file_size: data.file_size,
+                file_size: data.file_size + " Mb",
                 config: data.config,
                 date: data.date,
               });
@@ -44,7 +44,7 @@ function Samples() {
     }, [sampleId]);
     const searchItem = async (item) => {
       try {
-        const response = await fetch(`/search/${encodeURIComponent(item)}`);
+        const response = await fetch(`/api/search/${encodeURIComponent(item)}`);
         if(response.status === 404){
           setAnimation("flash 0.5s linear ")
           setTimeout(() => {

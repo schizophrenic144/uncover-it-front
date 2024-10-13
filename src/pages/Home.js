@@ -34,7 +34,7 @@ function Home() {
     try {
       const fetchStats = async () => {
         try {
-          const response = await fetch("/stats");
+          const response = await fetch(`/api/stats`);
           if (!response.ok) {
             setStats({
               total:"0",
@@ -89,7 +89,7 @@ function Home() {
     setLoaderColor('#ffffff');
     setBorderColor("rgb(255,255,255)")
     
-    const linkresp = await fetch('/link', {
+    const linkresp = await fetch('/api/link', {
       method: 'POST',
       body: JSON.stringify({'link': linkRef.current.value }),
       headers: { 'Content-Type': 'application/json'},
@@ -100,7 +100,7 @@ function Home() {
 
   const searchItem = async (item) => {
     try {
-      const response = await fetch(`/search/${encodeURIComponent(item)}`);
+      const response = await fetch(`/api/search/${encodeURIComponent(item)}`);
       if(response.status === 404){
         setAnimation("flash 0.5s linear ")
         setTimeout(() => {
@@ -152,7 +152,7 @@ function Home() {
     const sha256Hash = await calculateSha256(file);
 
     try {
-      const sha256Response = await fetch('/hash', {
+      const sha256Response = await fetch('/api/hash', {
         method: 'POST',
         body: JSON.stringify({ '256': sha256Hash }),
         headers: { 'Content-Type': 'application/json'},
@@ -192,7 +192,7 @@ function Home() {
     formData.append('256', sha256Hash);
 
     try {
-      const response = await fetch('/upload', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -251,6 +251,7 @@ function Home() {
               <div className="dropdown-content">
                 <a href="/latest">Latest Samples</a>
                 <a href="/links">Supported Links</a>
+                <a href="/links">Supported Malware</a>
                 <a href="https://discord.gg/r7vRB7TQuE" target="_blank" rel="noreferrer">Discord</a>
               </div>
             </div>
@@ -272,6 +273,8 @@ function Home() {
           </label>
           <input type="file" id="fileInput" onChange={handleFileChange} />
           <button type="submit" id="upload" style={{display:uploadButtonDisplay,opacity:opacity,pointerEvents:pointer}}>Upload</button>
+          <br/>
+          <label id="f_size">Max filesize: 256Mb</label>
         </form>
         <p style={{display:orDisplay}}>or</p>
         <form id="linkForm" onSubmit={handleLinkSubmit}>

@@ -19,7 +19,7 @@ function App() {
             <Route path="/family/:family_query" element={<Family />} />
             <Route path="/search/:query" element={<Family />} />
             <Route path="/latest" element={<Family />} />
-            <Route path="/*" element={<NotFound />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
       </div>

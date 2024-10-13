@@ -23,15 +23,15 @@ function Familys() {
             }
           };
       if (family_query) {
-        getSamples(`/familys/${family_query}`);
+        getSamples(`/api/familys/${family_query}`);
       }
       else{
-        getSamples(`/latest_samples`);
+        getSamples(`/api/latest_samples`);
       }
     }, [family_query]);
     const searchItem = async (item) => {
       try {
-        const response = await fetch(`/search/${encodeURIComponent(item)}`);
+        const response = await fetch(`/api/search/${encodeURIComponent(item)}`);
         if(response.status === 404){
           setAnimation("flash 0.5s linear ")
           setTimeout(() => {
