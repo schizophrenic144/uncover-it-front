@@ -17,6 +17,8 @@ function Home() {
   const [fileUploadDisplay,setfileUploadDisplay] = useState('inline-block');
   const [linkSubmitDisplay,setlinkSubmitDisplay] = useState('none');
   const [changeAnimation,setAnimation] = useState('none')
+  const [changeAnimationForUpload,setAnimationUpload] = useState('none')
+  const [changeRandomLabels,setRandomLabels] = useState('inline-block')
   const inputRef = useRef(null);
   const linkRef = useRef(null);
 
@@ -59,9 +61,42 @@ function Home() {
       console.error('Failed to fetch stats:', error);
     }
   }, []);
-
-  const handleFileChange = (event) => {
+  
+  const checkFileHeader = (file) => {
+    return new Promise((resolve, reject) => {
+      try {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const arrayBuffer = event.target.result;
+          const uint8Array = new Uint8Array(arrayBuffer);
+          const magicNumber = uint8Array.slice(0, 2).reduce(
+            (acc, byte) => acc + byte.toString(16).padStart(2, '0'),
+            ''
+          ).toUpperCase();
+          console.log(magicNumber);
+          resolve(magicNumber === "4D5A");
+        };
+  
+        reader.onerror = () => {
+          reject(new Error("Failed to read the file"));
+        };
+        reader.readAsArrayBuffer(file.slice(0, 2));
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+  const handleFileChange = async (event) => {
     const selectedFile = event.target.files[0];
+    const isTheThing = await checkFileHeader(selectedFile)
+    if(!isTheThing){
+      setAnimationUpload("flash 0.5s linear")
+      setTimeout(() => {
+        setAnimationUpload("none")
+      }, 500);
+      return "";
+    }
+    setRandomLabels("none")
     setFile(selectedFile);
     setUploadButtonDisplay("inline-block")
     setLinkCheckDisplay("none")
@@ -72,6 +107,7 @@ function Home() {
     }
   };
   const handleLinkChange = (event) => {
+    setRandomLabels("none")
     setlinkSubmitDisplay("inline-block")
     setLinkCheckDisplay("none")
     setOrDisplay("none")
@@ -102,7 +138,7 @@ function Home() {
     try {
       const response = await fetch(`/api/search/${encodeURIComponent(item)}`);
       if(response.status === 404){
-        setAnimation("flash 0.5s linear ")
+        setAnimation("flash 0.5s linear")
         setTimeout(() => {
           setAnimation("none")
         }, 500);
@@ -180,8 +216,7 @@ function Home() {
       return hashedValue;
     }
     catch (error){
-      console.log(error)
-      return "mobile"
+      //shouldnt error :pray:
     }
   };
 
@@ -268,13 +303,14 @@ function Home() {
           </div>
         </div>
         <form id="uploadForm" onSubmit={handleUpload}>
-          <label htmlFor="fileInput" className="file-upload" id="choose" style={{opacity:opacity,pointerEvents:pointer,display:fileUploadDisplay}}>
+          <label htmlFor="fileInput" className="file-upload" id="choose" style={{animation:changeAnimationForUpload,opacity:opacity,pointerEvents:pointer,display:fileUploadDisplay}}>
             Choose a file
           </label>
           <input type="file" id="fileInput" onChange={handleFileChange} />
           <button type="submit" id="upload" style={{display:uploadButtonDisplay,opacity:opacity,pointerEvents:pointer}}>Upload</button>
           <br/>
-          <label id="f_size">100Mb Upload | 1.5Gb Mega</label>
+          <br/>
+          <label id="f_size" style={{display:changeRandomLabels}}>100Mb Limit</label>
         </form>
         <p style={{display:orDisplay}}>or</p>
         <form id="linkForm" onSubmit={handleLinkSubmit}>
@@ -283,6 +319,7 @@ function Home() {
           <input ref={linkRef} type="text" id="linkInput" name="userInput" style={{display:linkSubmitDisplay,opacity:opacity,pointerEvents:pointer}} placeholder="https://link-to.malware/malware"/>
           <br />
           <button type="submit" id="submitLink" className="file-upload" style={{display:linkSubmitDisplay,opacity:opacity,pointerEvents:pointer}}>Submit</button>
+          <label id="f_size" style={{display:changeRandomLabels}}>NO SUPPORT AT THE MOMENT!</label>
         </form>
         <h2 id="stats">
           Global files analyzed: {stats.total} | {stats.size}

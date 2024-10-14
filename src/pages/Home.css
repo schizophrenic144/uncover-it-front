@@ -1,15 +1,15 @@
-/* Hide scrollbar for WebKit browsers */
+
 #status::-webkit-scrollbar {
     display: none;
 }
 
-/* Hide scrollbar for other browsers */
+
 #status {
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
 
-/* Set overflow and sizing for status */
+
 #status {
     margin: auto;
     padding: 1rem;
