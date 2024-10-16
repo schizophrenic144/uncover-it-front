@@ -69,6 +69,7 @@ function NotFound() {
               <div className="dropdown-content">
                 <a href="/latest">Latest Samples</a>
                 <a href="/links">Supported Links</a>
+                <a href="/malware">Supported Malware</a>
                 <a href="https://discord.gg/r7vRB7TQuE" target="_blank" rel="noreferrer">Discord</a>
               </div>
             </div>

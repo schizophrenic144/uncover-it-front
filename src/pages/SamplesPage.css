@@ -113,6 +113,11 @@ h3 {
     background-color: #444040;
 }
 
+.whiteColor{
+    font-size: 1.3rem;
+    color: #ffffff;
+}
+
 /* Responsive #config box */
 #config {
     padding: 1rem;

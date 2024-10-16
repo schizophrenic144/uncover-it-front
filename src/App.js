@@ -6,6 +6,7 @@ import HomePage from './pages/Home';
 import Family from './pages/FamilyPage';
 import NotFound from './pages/NotFound';
 import SupportedLinks from './pages/SupportedLinks'
+import SupportedMalware from './pages/SupportedMalware'
 
 function App() {
   useEffect(() => {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/search/:query" element={<Family />} />
             <Route path="/latest" element={<Family />} />
             <Route path="/links" element={<SupportedLinks />} />
+            <Route path="/malware" element={<SupportedMalware />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
