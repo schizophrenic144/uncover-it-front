@@ -101,6 +101,18 @@ h3 {
     text-align: center;
 }
 
+.links{
+    font-size: 2rem;
+    color: #ffffff;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 0.3rem;
+    border-radius: 0.5rem;
+}
+.links:hover{
+    background-color: #444040;
+}
+
 /* Responsive #config box */
 #config {
     padding: 1rem;
