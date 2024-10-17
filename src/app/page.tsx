@@ -14,6 +14,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { Search, Upload, MoreVertical, File } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
+import sha256 from 'js-sha256'
 
 export default function FileUploadHomepage() {
   const [files, setFiles] = useState([])
@@ -38,15 +39,15 @@ export default function FileUploadHomepage() {
   const [opacity, setOpacity] = useState("1");
   const [pointer, setPointer] = useState("auto");
   const [stats, setStats] = useState({
-    total: "",
-    size: ""
+    total: "0",
+    size: "0"
   });
 
   useEffect(() => {
     try {
       const fetchStats = async () => {
         try {
-          const response = await fetch(`/api/stats`);
+          const response = await fetch(`https://api.uncover.us.kg/stats`);
           if (!response.ok) {
             setStats({
               total: "0",
@@ -83,7 +84,6 @@ export default function FileUploadHomepage() {
             (acc, byte) => acc + byte.toString(16).padStart(2, '0'),
             ''
           ).toUpperCase();
-          console.log(magicNumber);
           resolve(magicNumber === "4D5A");
         };
 
@@ -92,6 +92,7 @@ export default function FileUploadHomepage() {
         };
         reader.readAsArrayBuffer(file.slice(0, 2));
       } catch (error) {
+        console.log(error)
         reject(error);
       }
     });
@@ -99,6 +100,7 @@ export default function FileUploadHomepage() {
 
   const handleFileChange = async (event) => {
     const selectedFile = event.target.files[0];
+    console.log("Checking file header..")
     const isTheThing = await checkFileHeader(selectedFile)
     if (!isTheThing) {
       setAnimationUpload("flash 0.5s linear")
@@ -112,10 +114,7 @@ export default function FileUploadHomepage() {
     setUploadButtonDisplay("inline-block")
     setLinkCheckDisplay("none")
     setOrDisplay("none")
-    if (status !== 'CHECKING HASH') {
-      setStatus('PROCESSING');
-      setLoaderColor('#ffffff');
-    }
+    handleUpload()
   };
 
   const handleLinkChange = (event) => {
@@ -137,7 +136,7 @@ export default function FileUploadHomepage() {
     setLoaderColor('#ffffff');
     setBorderColor("rgb(255,255,255)")
 
-    const linkresp = await fetch('/api/link', {
+    const linkresp = await fetch('https://api.uncover.us.kg/link', {
       method: 'POST',
       body: JSON.stringify({ 'link': linkRef.current.value }),
       headers: { 'Content-Type': 'application/json' },
@@ -147,7 +146,7 @@ export default function FileUploadHomepage() {
 
   const searchItem = async (item) => {
     try {
-      const response = await fetch(`/api/search/${encodeURIComponent(item)}`);
+      const response = await fetch(`https://api.uncover.us.kg/search/${encodeURIComponent(item)}`);
       if (response.status === 404) {
         setAnimation("flash 0.5s linear")
         setTimeout(() => {
@@ -184,8 +183,7 @@ export default function FileUploadHomepage() {
     searchItem(inputRef.current.value);
   };
 
-  const handleUpload = async (event) => {
-    event.preventDefault();
+  const handleUpload = async () => {
     if (!file) return;
     setOpacity("0.5")
     setPointer("none")
@@ -197,9 +195,11 @@ export default function FileUploadHomepage() {
     setBorderColor('rgb(255, 255, 255)')
 
     const sha256Hash = await calculateSha256(file);
+    console.log(sha256Hash)
 
     try {
-      const sha256Response = await fetch('/api/hash', {
+      console.log("Getting hash")
+      const sha256Response = await fetch('https://api.uncover.us.kg/hash', {
         method: 'POST',
         body: JSON.stringify({ '256': sha256Hash }),
         headers: { 'Content-Type': 'application/json' },
@@ -207,7 +207,8 @@ export default function FileUploadHomepage() {
       const sha256Data = await sha256Response.json();
 
       if (!sha256Data.exists) {
-        setStatus('PROCESSING');
+        //setStatus('PROCESSING');
+        console.log("Uploading and processing!")
         await analyze(file, sha256Hash);
       } else if (sha256Data.exists) {
         window.location.href = `/samples/${encodeURIComponent(sha256Hash)}`;
@@ -215,6 +216,7 @@ export default function FileUploadHomepage() {
         setStatus('Error processing file');
       }
     } catch (error) {
+      console.log(error)
       setStatus('Server or upload error!');
     }
   };
@@ -222,11 +224,12 @@ export default function FileUploadHomepage() {
   const calculateSha256 = async (file) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const wordArray = WordArray.create(arrayBuffer);
-      const hashedValue = SHA256(wordArray).toString();
+      const byteArray = new Uint8Array(arrayBuffer);
+      const hashedValue = sha256(byteArray);
       return hashedValue;
     }
     catch (error) {
+      return error
       //shouldnt error :pray:
     }
   };
@@ -238,7 +241,7 @@ export default function FileUploadHomepage() {
     formData.append('256', sha256Hash);
 
     try {
-      const response = await fetch('/api/upload', {
+      const response = await fetch('https://api.uncover.us.kg/upload', {
         method: 'POST',
         body: formData,
       });
@@ -268,35 +271,22 @@ export default function FileUploadHomepage() {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold mb-6 text-center">File Upload Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">Uncover It</h1>
         
         <div className="mb-6 flex items-center space-x-4">
           <div className="flex-grow">
-            <Label htmlFor="search" className="sr-only">Search files</Label>
+            <Label htmlFor="search" className="sr-only">Search</Label>
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 id="search"
-                placeholder="Search files..."
+                placeholder="Search samples by sha256 or by family"
                 className="pl-8"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline"><MoreVertical className="h-4 w-4" /></Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Options</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Sort by name</DropdownMenuItem>
-              <DropdownMenuItem>Sort by date</DropdownMenuItem>
-              <DropdownMenuItem>Sort by size</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
         
         <div className="mb-6">
@@ -305,7 +295,7 @@ export default function FileUploadHomepage() {
               <Label htmlFor="file-upload" className="cursor-pointer">
                 <div className="flex flex-col items-center">
                   <Upload className="h-12 w-12 text-muted-foreground mb-2" />
-                  <span className="text-lg font-semibold">Upload Files</span>
+                  <span className="text-lg font-semibold">Choose a file for static analysis</span>
                   <span className="text-sm text-muted-foreground">Drag & drop or click to select</span>
                 </div>
               </Label>
@@ -319,27 +309,7 @@ export default function FileUploadHomepage() {
             </CardContent>
           </Card>
         </div>
-        
-        <div className="mb-4 flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Uploaded Files</h2>
-          <span className="text-sm text-muted-foreground">{files.length} file(s)</span>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {files.map((file, index) => (  // Corrected variable name
-            <Card key={index}>
-              <CardContent className="p-4 flex items-center space-x-3">
-                <File className="h-8 w-8 text-muted-foreground" />
-                <div>
-                  <p className="font-medium truncate">{file.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Label className="justify-center flex text-lg font-semibold">Global files analyzed: {stats.total} | {stats.size}</Label>
       </div>
     </div>
   )
