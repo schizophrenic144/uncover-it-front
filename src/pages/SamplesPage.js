@@ -20,7 +20,7 @@ function Samples() {
     useEffect(() => {
         const getSample = async () => {
             try {
-              const response = await fetch(`/api/sample/${sampleId}`);
+              const response = await fetch(`https://api.uncover.us.kg/api/sample/${sampleId}`);
               if (!response.ok) {
                 window.location.href = "/404"
                 return;
@@ -44,7 +44,7 @@ function Samples() {
     }, [sampleId]);
     const searchItem = async (item) => {
       try {
-        const response = await fetch(`/api/search/${encodeURIComponent(item)}`);
+        const response = await fetch(`https://api.uncover.us.kg/api/search/${encodeURIComponent(item)}`);
         if(response.status === 404){
           setAnimation("flash 0.5s linear ")
           setTimeout(() => {
