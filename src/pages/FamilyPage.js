@@ -23,15 +23,15 @@ function Familys() {
             }
           };
       if (family_query) {
-        getSamples(`/api/familys/${family_query}`);
+        getSamples(`https://api.uncover.us.kg/api/families/${family_query}`);
       }
       else{
-        getSamples(`/api/latest_samples`);
+        getSamples(`https://api.uncover.us.kg/api/latest_samples`);
       }
     }, [family_query]);
     const searchItem = async (item) => {
       try {
-        const response = await fetch(`/api/search/${encodeURIComponent(item)}`);
+        const response = await fetch(`https://api.uncover.us.kg/api/search/${encodeURIComponent(item)}`);
         if(response.status === 404){
           setAnimation("flash 0.5s linear ")
           setTimeout(() => {
