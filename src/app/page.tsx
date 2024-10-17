@@ -1,37 +1,47 @@
-import React, { useState, useEffect,useRef  } from 'react';
-import SHA256 from 'crypto-js/sha256';
-import WordArray from 'crypto-js/lib-typedarrays';
-import searchIcon from './assets/search.png';
-import './Home.css';
+"use client"
 
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Card, CardContent } from "@/components/ui/card"
+import { Search, Upload, MoreVertical, File } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 
-
-function Home() {
+export default function FileUploadHomepage() {
+  const [files, setFiles] = useState([])
+  const [searchTerm, setSearchTerm] = useState("")
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('CHECKING HASH');
   const [loaderColor, setLoaderColor] = useState('#000');
-  const [borderColor,setBorderColor] = useState('rgb(0, 0, 0)');
-  const [uploadButtonDisplay,setUploadButtonDisplay] = useState('none');
-  const [statusDisplay,setStatusDisplay] = useState('InlineBlock');
-  const [linkCheckDisplay,setLinkCheckDisplay] = useState('inline-block');
-  const [fileUploadDisplay,setfileUploadDisplay] = useState('inline-block');
-  const [linkSubmitDisplay,setlinkSubmitDisplay] = useState('none');
-  const [changeAnimation,setAnimation] = useState('none')
-  const [changeAnimationForUpload,setAnimationUpload] = useState('none')
-  const [changeRandomLabels,setRandomLabels] = useState('inline-block')
+  const [borderColor, setBorderColor] = useState('rgb(0, 0, 0)');
+  const [uploadButtonDisplay, setUploadButtonDisplay] = useState('none');
+  const [statusDisplay, setStatusDisplay] = useState('InlineBlock');
+  const [linkCheckDisplay, setLinkCheckDisplay] = useState('inline-block');
+  const [fileUploadDisplay, setfileUploadDisplay] = useState('inline-block');
+  const [linkSubmitDisplay, setlinkSubmitDisplay] = useState('none');
+  const [changeAnimation, setAnimation] = useState('none');
+  const [changeAnimationForUpload, setAnimationUpload] = useState('none');
+  const [changeRandomLabels, setRandomLabels] = useState('inline-block');
   const inputRef = useRef(null);
   const linkRef = useRef(null);
-
-  const [orDisplay,setOrDisplay] = useState('inline-block');
-  const [statusHeight,setStatusHeight] = useState('20px');
-  const [statusWidth,setStatusWidth] = useState('300px');
-  
-  const [opacity,setOpacity] = useState("1");
-  const [pointer,setPointer] = useState("auto")
+  const [orDisplay, setOrDisplay] = useState('inline-block');
+  const [statusHeight, setStatusHeight] = useState('20px');
+  const [statusWidth, setStatusWidth] = useState('300px');
+  const [opacity, setOpacity] = useState("1");
+  const [pointer, setPointer] = useState("auto");
   const [stats, setStats] = useState({
     total: "",
     size: ""
-}); 
+  });
+
   useEffect(() => {
     try {
       const fetchStats = async () => {
@@ -39,14 +49,14 @@ function Home() {
           const response = await fetch(`/api/stats`);
           if (!response.ok) {
             setStats({
-              total:"0",
-              size:"0 Mb"
+              total: "0",
+              size: "0 Mb"
             });
           };
           const data = await response.json();
           setStats({
-            total:data.total,
-            size:data.size +" Mb"
+            total: data.total,
+            size: data.size + " Mb"
           });
         } catch (error) {
           console.log(error)
@@ -55,13 +65,13 @@ function Home() {
       fetchStats();
     } catch (error) {
       setStats({
-        total:"0",
-        size:"0 Mb"
+        total: "0",
+        size: "0 Mb"
       })
       console.error('Failed to fetch stats:', error);
     }
   }, []);
-  
+
   const checkFileHeader = (file) => {
     return new Promise((resolve, reject) => {
       try {
@@ -76,7 +86,7 @@ function Home() {
           console.log(magicNumber);
           resolve(magicNumber === "4D5A");
         };
-  
+
         reader.onerror = () => {
           reject(new Error("Failed to read the file"));
         };
@@ -86,10 +96,11 @@ function Home() {
       }
     });
   };
+
   const handleFileChange = async (event) => {
     const selectedFile = event.target.files[0];
     const isTheThing = await checkFileHeader(selectedFile)
-    if(!isTheThing){
+    if (!isTheThing) {
       setAnimationUpload("flash 0.5s linear")
       setTimeout(() => {
         setAnimationUpload("none")
@@ -106,14 +117,15 @@ function Home() {
       setLoaderColor('#ffffff');
     }
   };
+
   const handleLinkChange = (event) => {
     setRandomLabels("none")
     setlinkSubmitDisplay("inline-block")
     setLinkCheckDisplay("none")
     setOrDisplay("none")
     setfileUploadDisplay("none")
-
   };
+
   const handleLinkSubmit = async (event) => {
     event.preventDefault();
     setOpacity("0.5")
@@ -124,33 +136,32 @@ function Home() {
     setStatus('ANALYZING YOUR LINK');
     setLoaderColor('#ffffff');
     setBorderColor("rgb(255,255,255)")
-    
+
     const linkresp = await fetch('/api/link', {
       method: 'POST',
-      body: JSON.stringify({'link': linkRef.current.value }),
-      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify({ 'link': linkRef.current.value }),
+      headers: { 'Content-Type': 'application/json' },
     });
     console.log(linkresp)
-
   };
 
   const searchItem = async (item) => {
     try {
       const response = await fetch(`/api/search/${encodeURIComponent(item)}`);
-      if(response.status === 404){
+      if (response.status === 404) {
         setAnimation("flash 0.5s linear")
         setTimeout(() => {
           setAnimation("none")
         }, 500);
       }
       const searchData = await response.json();
-      if (searchData.sha256){
+      if (searchData.sha256) {
         window.location.href = `/samples/${encodeURIComponent(searchData.sha256)}`;
       }
-      else if (searchData.family){
+      else if (searchData.family) {
         window.location.href = `/family/${encodeURIComponent(searchData.family)}`;
       }
-      else if (!searchData.status){
+      else if (!searchData.status) {
         console.log("setting animations")
         setAnimation("flash 0.5s linear ")
         setTimeout(() => {
@@ -160,7 +171,6 @@ function Home() {
     } catch (error) {
       console.error('Failed to load new page:', error);
     }
-
   };
 
   const handleSearch = async (event) => {
@@ -169,6 +179,7 @@ function Home() {
       searchItem(event.target.value);
     }
   };
+
   const handleSearchButton = async (event) => {
     searchItem(inputRef.current.value);
   };
@@ -191,7 +202,7 @@ function Home() {
       const sha256Response = await fetch('/api/hash', {
         method: 'POST',
         body: JSON.stringify({ '256': sha256Hash }),
-        headers: { 'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
       });
       const sha256Data = await sha256Response.json();
 
@@ -209,13 +220,13 @@ function Home() {
   };
 
   const calculateSha256 = async (file) => {
-    try{
+    try {
       const arrayBuffer = await file.arrayBuffer();
       const wordArray = WordArray.create(arrayBuffer);
       const hashedValue = SHA256(wordArray).toString();
       return hashedValue;
     }
-    catch (error){
+    catch (error) {
       //shouldnt error :pray:
     }
   };
@@ -253,80 +264,83 @@ function Home() {
       setStatus('Upload error!');
     }
   };
-  /*
-  const generateRandomId = (length) => {
-    const charset = 'АБВГДЕЖЗИИЙКЛМНОПРСТУФХЦЧШЩЫЭЮЯ0';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * charset.length);
-      result += charset[randomIndex];
-    }
-    return result;
-  };
-  */
 
   return (
-    <div className="App">
-        <div id="top">
-          <div id="top-in">
-            <h1><a href="/">Uncover It</a></h1>
-            <input
-              ref={inputRef}
-              type="text"
-              id="search"
-              placeholder="Family, SHA-256 Hash"
-              style={{animation:changeAnimation}}
-              onKeyDown={handleSearch}
-              
-            />
-            <button type="button" id="searchButton" onClick={handleSearchButton}><img src={searchIcon} alt="searchIcon"></img></button>
-
-            <div className="dropdown">
-              <button className="dropbtn">|||</button>
-              <div className="dropdown-content">
-                <a href="/latest">Latest Samples</a>
-                <a href="/links">Supported Links</a>
-                <a href="/malware">Supported Malware</a>
-                <a href="https://discord.gg/r7vRB7TQuE" target="_blank" rel="noreferrer">Discord</a>
-              </div>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 className="text-3xl font-bold mb-6 text-center">File Upload Dashboard</h1>
+        
+        <div className="mb-6 flex items-center space-x-4">
+          <div className="flex-grow">
+            <Label htmlFor="search" className="sr-only">Search files</Label>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="search"
+                placeholder="Search files..."
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
-          <hr />
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline"><MoreVertical className="h-4 w-4" /></Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Options</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Sort by name</DropdownMenuItem>
+              <DropdownMenuItem>Sort by date</DropdownMenuItem>
+              <DropdownMenuItem>Sort by size</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <div id="status" style={{borderColor:borderColor,height:statusHeight,width:statusWidth}}>
-          <div id="st" style={{display:statusDisplay,alignItems: 'center'}}>
-            <span id="statusText">{status} </span>
-            <div
-              className="loader"
-              style={{ borderTopColor: loaderColor }}
-            ></div>
-          </div>
+        
+        <div className="mb-6">
+          <Card>
+            <CardContent className="p-6 flex flex-col items-center justify-center">
+              <Label htmlFor="file-upload" className="cursor-pointer">
+                <div className="flex flex-col items-center">
+                  <Upload className="h-12 w-12 text-muted-foreground mb-2" />
+                  <span className="text-lg font-semibold">Upload Files</span>
+                  <span className="text-sm text-muted-foreground">Drag & drop or click to select</span>
+                </div>
+              </Label>
+              <Input
+                id="file-upload"
+                type="file"
+                className="hidden"
+                onChange={handleFileChange}  // Corrected function name
+                multiple
+              />
+            </CardContent>
+          </Card>
         </div>
-        <form id="uploadForm" onSubmit={handleUpload}>
-          <label htmlFor="fileInput" className="file-upload" id="choose" style={{animation:changeAnimationForUpload,opacity:opacity,pointerEvents:pointer,display:fileUploadDisplay}}>
-            Choose a file
-          </label>
-          <input type="file" id="fileInput" onChange={handleFileChange} />
-          <button type="submit" id="upload" style={{display:uploadButtonDisplay,opacity:opacity,pointerEvents:pointer}}>Upload</button>
-          <br/>
-          <br/>
-          <label id="f_size" style={{display:changeRandomLabels}}>100Mb Limit</label>
-        </form>
-        <p style={{display:orDisplay}}>or</p>
-        <form id="linkForm" onSubmit={handleLinkSubmit}>
-          <button type="button" id="linkCheck" onClick={handleLinkChange} className="file-upload" style={{display:linkCheckDisplay}}>Submit a link</button>
-          <br />
-          <input ref={linkRef} type="text" id="linkInput" name="userInput" style={{display:linkSubmitDisplay,opacity:opacity,pointerEvents:pointer}} placeholder="https://link-to.malware/malware"/>
-          <br />
-          <button type="submit" id="submitLink" className="file-upload" style={{display:linkSubmitDisplay,opacity:opacity,pointerEvents:pointer}}>Submit</button>
-          <label id="f_size" style={{display:changeRandomLabels}}>NO SUPPORT AT THE MOMENT!</label>
-        </form>
-        <h2 id="stats">
-          Global files analyzed: {stats.total} | {stats.size}
-        </h2>
-        <hr />
+        
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-xl font-semibold">Uploaded Files</h2>
+          <span className="text-sm text-muted-foreground">{files.length} file(s)</span>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {files.map((file, index) => (  // Corrected variable name
+            <Card key={index}>
+              <CardContent className="p-4 flex items-center space-x-3">
+                <File className="h-8 w-8 text-muted-foreground" />
+                <div>
+                  <p className="font-medium truncate">{file.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-  );
+    </div>
+  )
 }
-
-export default Home;
