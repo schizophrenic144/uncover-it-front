@@ -36,7 +36,7 @@ function Home() {
     try {
       const fetchStats = async () => {
         try {
-          const response = await fetch(`https://api.uncover.us.kg/api/stats`);
+          const response = await fetch(`https://api.uncover.us.kg/stats`);
           if (!response.ok) {
             setStats({
               total:"0",
@@ -125,7 +125,7 @@ function Home() {
     setLoaderColor('#ffffff');
     setBorderColor("rgb(255,255,255)")
     
-    const linkresp = await fetch('https://api.uncover.us.kg/api/link', {
+    const linkresp = await fetch('https://api.uncover.us.kg/link', {
       method: 'POST',
       body: JSON.stringify({'link': linkRef.current.value }),
       headers: { 'Content-Type': 'application/json'},
@@ -136,7 +136,7 @@ function Home() {
 
   const searchItem = async (item) => {
     try {
-      const response = await fetch(`https://api.uncover.us.kg/api/search/${encodeURIComponent(item)}`);
+      const response = await fetch(`https://api.uncover.us.kg/search/${encodeURIComponent(item)}`);
       if(response.status === 404){
         setAnimation("flash 0.5s linear")
         setTimeout(() => {
@@ -188,7 +188,7 @@ function Home() {
     const sha256Hash = await calculateSha256(file);
 
     try {
-      const sha256Response = await fetch('https://api.uncover.us.kg/api/hash', {
+      const sha256Response = await fetch('https://api.uncover.us.kg/hash', {
         method: 'POST',
         body: JSON.stringify({ '256': sha256Hash }),
         headers: { 'Content-Type': 'application/json'},
@@ -227,7 +227,7 @@ function Home() {
     formData.append('256', sha256Hash);
 
     try {
-      const response = await fetch('https://api.uncover.us.kg/api/upload', {
+      const response = await fetch('https://api.uncover.us.kg/upload', {
         method: 'POST',
         body: formData,
       });
