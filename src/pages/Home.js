@@ -196,7 +196,7 @@ function Home() {
       const sha256Data = await sha256Response.json();
 
       if (!sha256Data.exists) {
-        setStatus('PROCESSING');
+        setStatus('UPLOADING AND PROCESSING');
         await analyze(file, sha256Hash);
       } else if (sha256Data.exists) {
         window.location.href = `/samples/${encodeURIComponent(sha256Hash)}`;
