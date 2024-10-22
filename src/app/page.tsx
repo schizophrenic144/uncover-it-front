@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Search, Upload, File, BarChart2, FileText, Calendar, HardDrive } from "lucide-react"
+import sha256 from 'js-sha256'
 
 export default function FileUploadHomepage() {
   const [files, setFiles] = useState([])
@@ -21,10 +22,50 @@ export default function FileUploadHomepage() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
 
-  const handleFileUpload = (fileList) => {
+
+  const calculateSha256 = async (file) => { // sha256 calc with js-sha256
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const byteArray = new Uint8Array(arrayBuffer);
+      const hashedValue = sha256(byteArray);
+      return hashedValue;
+    }
+    catch (error) {
+      return error
+    }
+  };
+
+  const handleFileUpload = async (fileList) => {
     const newFiles = Array.from(fileList)
     const validFiles = newFiles.filter(file => file.size <= 100 * 1024 * 1024) // 100MB limit
     setFiles(prevFiles => [...prevFiles, ...validFiles])
+
+    const sha256Hash = await calculateSha256(validFiles[0]);
+    const sha256Response = await fetch('https://api.uncover.us.kg/hash', {
+        method: 'POST',
+        body: JSON.stringify({ '256': sha256Hash }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+    const sha256Data = await sha256Response.json();
+    if(!sha256Data.exists){
+      const formData = new FormData();
+      formData.append('file', validFiles[0]);
+      formData.append('256', sha256Hash);
+      const response = await fetch('https://api.uncover.us.kg/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.message === 'Done') {
+        console.log("success!")
+        // display to the user that the file analysis was successful
+      }
+      else{
+        console.log("failed!")
+        // display to the user that the file analysis was a complete fail
+      }
+    }
+    
   }
 
   const handleInputChange = (event) => {
@@ -207,7 +248,6 @@ export default function FileUploadHomepage() {
                   <span className="text-sm">Last Modified:</span>
                 </div>
                 <div className="text-sm">
-                  {selectedFile.lastModifiedDate.toLocaleString()}
                 </div>
                 <div className="flex items-center gap-2">
                   <HardDrive className="h-4 w-4 text-muted-foreground" />
