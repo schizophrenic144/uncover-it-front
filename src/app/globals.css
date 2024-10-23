@@ -76,3 +76,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.text-wrap {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
