@@ -79,6 +79,28 @@ export default function FileUploadHomepage() {
       return error;
     }
   };
+  useEffect(() => {
+    if (selectedFile) {
+      getSampleData(selectedFile);
+    }
+  }, [selectedFile]);
+  const getSampleData = async (selected) => {
+    try {
+      const response = await fetch(`https://api.uncover.us.kg/sample/${selected.sha256}`);
+      if (!response.ok) {
+        selected.status = "Failed!";
+        return;
+      }
+      const data = await response.json();
+      selected.tag = data.tag;
+      selected.family = data.family;
+      selected.config = data.config;
+      selected.tag = data.tag;
+      selected.status = "Success!"
+    } catch (error) {
+    }
+  };
+
 
   const handleFileUpload = async (fileList) => {
     const newFiles = Array.from(fileList);
@@ -88,6 +110,7 @@ export default function FileUploadHomepage() {
     setFiles((prevFiles) => [...prevFiles, ...validFiles]);
 
     const sha256Hash = await calculateSha256(validFiles[0]);
+    validFiles[0].sha256 = sha256Hash;
     const sha256Response = await fetch("https://api.uncover.us.kg/hash", {
       method: "POST",
       body: JSON.stringify({ "256": sha256Hash }),
@@ -340,6 +363,13 @@ export default function FileUploadHomepage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 min-w-[100px]">
+                    <HardDrive className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-wrap">Status:</span>
+                  </div>
+                  <div className="text-sm text-wrap">{selectedFile.status || "In Progress"}</div>
+                </div>
+                <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-wrap">Last Modified:</span>
@@ -352,6 +382,20 @@ export default function FileUploadHomepage() {
                     <span className="text-sm text-wrap">File Type:</span>
                   </div>
                   <div className="text-sm text-wrap">{selectedFile.type || "Unknown"}</div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 min-w-[100px]">
+                    <HardDrive className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-wrap">Malware Family:</span>
+                  </div>
+                  <div className="text-sm text-wrap">{selectedFile.family || "Unknown"}</div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 min-w-[100px]">
+                    <HardDrive className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-wrap">Malware Type:</span>
+                  </div>
+                  <div className="text-sm text-wrap">{selectedFile.tag || "Unknown"}</div>
                 </div>
               </div>
             )}
