@@ -68,6 +68,7 @@ export default function FileUploadHomepage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // New state for loading
 
   const calculateSha256 = async (file) => {
     try {
@@ -79,14 +80,20 @@ export default function FileUploadHomepage() {
       return error;
     }
   };
+
   useEffect(() => {
     if (selectedFile) {
       getSampleData(selectedFile);
     }
   }, [selectedFile]);
+
   const getSampleData = async (selected) => {
     try {
-      const response = await fetch(`https://api.uncover.us.kg/sample/${selected.sha256}`);
+      selected.status = "In Progress"; // Set status to "In Progress"
+      setIsLoading(true);
+      const response = await fetch(
+        `https://api.uncover.us.kg/sample/${selected.sha256}`
+      );
       if (!response.ok) {
         selected.status = "Failed!";
         return;
@@ -96,17 +103,21 @@ export default function FileUploadHomepage() {
       selected.family = data.family;
       selected.config = data.config;
       selected.tag = data.tag;
-      selected.status = "Success!"
+      selected.status = "Success!";
     } catch (error) {
+      selected.status = "Failed!";
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
-
 
   const handleFileUpload = async (fileList) => {
     const newFiles = Array.from(fileList);
     const validFiles = newFiles.filter(
       (file) => file.size <= 100 * 1024 * 1024
     ); // 100MB limit
+    validFiles.forEach((file) => (file.status = "In Progress")); // Set status to "In Progress"
     setFiles((prevFiles) => [...prevFiles, ...validFiles]);
 
     const sha256Hash = await calculateSha256(validFiles[0]);
@@ -127,11 +138,14 @@ export default function FileUploadHomepage() {
       });
       const data = await response.json();
       if (data.message === "Done") {
-        console.log("success!");
+        validFiles[0].status = "Success!"; // Update status to "Success!"
       } else {
-        console.log("failed!");
+        validFiles[0].status = "Failed!"; // Update status to "Failed!"
       }
+    } else {
+      validFiles[0].status = "Success!"; // If file already exists, mark as "Success!"
     }
+    setFiles((prevFiles) => [...prevFiles]); // Trigger re-render
   };
 
   const handleInputChange = (event) => {
@@ -167,10 +181,14 @@ export default function FileUploadHomepage() {
       totalSize: (totalSize / (1024 * 1024)).toFixed(2),
       averageSize: (averageSize / (1024 * 1024)).toFixed(2),
       largestFile: largestFile.name
-        ? `${largestFile.name} (${(largestFile.size / (1024 * 1024)).toFixed(2)} MB)`
+        ? `${largestFile.name} (${(largestFile.size / (1024 * 1024)).toFixed(
+            2
+          )} MB)`
         : "N/A",
       smallestFile: smallestFile.name
-        ? `${smallestFile.name} (${(smallestFile.size / (1024 * 1024)).toFixed(2)} MB)`
+        ? `${smallestFile.name} (${(smallestFile.size / (1024 * 1024)).toFixed(
+            2
+          )} MB)`
         : "N/A",
     };
   }, [files]);
@@ -183,12 +201,12 @@ export default function FileUploadHomepage() {
     const cursor = document.createElement("div");
     cursor.classList.add("custom-cursor", "expanded");
     document.body.appendChild(cursor);
-  
+
     const handleMouseMove = (e) => {
       cursor.style.left = `${e.pageX}px`;
       cursor.style.top = `${e.pageY}px`;
     };
-  
+
     const handleMouseOver = (e) => {
       if (e.target.closest("a, button, input, .clickable")) {
         cursor.classList.remove("expanded");
@@ -198,18 +216,18 @@ export default function FileUploadHomepage() {
         cursor.classList.add("expanded");
       }
     };
-  
+
     const handleClick = () => {
       cursor.classList.add("clicked");
       setTimeout(() => {
         cursor.classList.remove("clicked");
       }, 100);
     };
-  
+
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseover", handleMouseOver);
     document.addEventListener("click", handleClick);
-  
+
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseover", handleMouseOver);
@@ -243,7 +261,9 @@ export default function FileUploadHomepage() {
         </div>
 
         <div
-          className={`mb-6 ${isDragging ? "border-4 border-dashed border-blue-500" : ""} clickable`}
+          className={`mb-6 ${
+            isDragging ? "border-4 border-dashed border-blue-500" : ""
+          } clickable`}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           onDragOver={(e) => e.preventDefault()}
@@ -336,14 +356,21 @@ export default function FileUploadHomepage() {
                   </div>
                 </div>
                 <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-white-200 border border-black-300 rounded-md">
-                  <Eye className="h-5 w-5" />
+                  {file.status === "In Progress" ? (
+                    <div className="spinner"></div>
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <Dialog open={!!selectedFile} onOpenChange={() => setSelectedFile(null)}>
+        <Dialog
+          open={!!selectedFile}
+          onOpenChange={() => setSelectedFile(null)}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>File Details</DialogTitle>
@@ -355,9 +382,11 @@ export default function FileUploadHomepage() {
               <div className="grid gap-4 py-4">
                 <div className="flex items-center gap-4">
                   <FileText className="h-10 w-10 text-muted-foreground" />
-                  <div className="flex-grow min-w-0">
-                    <p className="font-medium text-wrap">{selectedFile.name}</p>
-                    <p className="text-sm text-muted-foreground text-wrap">
+                  <div className="flex-grow min-w-0 overflow-hidden">
+                    <p className="font-medium break-words overflow-wrap">
+                      {selectedFile.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
                       {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                     </p>
                   </div>
@@ -367,35 +396,45 @@ export default function FileUploadHomepage() {
                     <HardDrive className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-wrap">Status:</span>
                   </div>
-                  <div className="text-sm text-wrap">{selectedFile.status || "In Progress"}</div>
+                  <div className="text-sm text-wrap">
+                    {selectedFile.status || "In Progress"}
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-wrap">Last Modified:</span>
                   </div>
-                  <div className="text-sm text-wrap">{new Date(selectedFile.lastModified).toLocaleDateString()}</div>
+                  <div className="text-sm text-wrap">
+                    {new Date(selectedFile.lastModified).toLocaleDateString()}
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 min-w-[100px]">
                     <HardDrive className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-wrap">File Type:</span>
                   </div>
-                  <div className="text-sm text-wrap">{selectedFile.type || "Unknown"}</div>
+                  <div className="text-sm text-wrap">
+                    {selectedFile.type || "Unknown"}
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 min-w-[100px]">
                     <HardDrive className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-wrap">Malware Family:</span>
                   </div>
-                  <div className="text-sm text-wrap">{selectedFile.family || "Unknown"}</div>
+                  <div className="text-sm text-wrap">
+                    {selectedFile.family || "Unknown"}
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 min-w-[100px]">
                     <HardDrive className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-wrap">Malware Type:</span>
                   </div>
-                  <div className="text-sm text-wrap">{selectedFile.tag || "Unknown"}</div>
+                  <div className="text-sm text-wrap">
+                    {selectedFile.tag || "Unknown"}
+                  </div>
                 </div>
               </div>
             )}
