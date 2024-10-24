@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { X } from "lucide-react"; 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -351,32 +351,34 @@ export default function FileUploadHomepage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredFiles.map((file, index) => (
-            <Card
-              key={index}
-              className="cursor-pointer hover:shadow-md transition-shadow duration-200 clickable"
-              onClick={() => handleFileClick(file)}
-            >
-              <CardContent className="p-4 flex items-center justify-between">
-                <div className="flex items-start space-x-3 flex-grow min-w-0">
-                  <File className="h-8 w-8 text-muted-foreground flex-shrink-0 mt-1" />
-                  <div className="flex-grow min-w-0">
-                    <p className="font-medium truncate">{file.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
-                </div>
-                <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-white-200 border border-black-300 rounded-md">
-                  {file.status === "In Progress" ? (
-                    <div className="spinner"></div>
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        {filteredFiles.map((file, index) => (
+  <Card
+    key={index}
+    className="cursor-pointer hover:shadow-md transition-shadow duration-200 clickable"
+    onClick={() => handleFileClick(file)}
+  >
+    <CardContent className="p-4 flex items-center justify-between">
+      <div className="flex items-start space-x-3 flex-grow min-w-0">
+        <File className="h-8 w-8 text-muted-foreground flex-shrink-0 mt-1" />
+        <div className="flex-grow min-w-0">
+          <p className="font-medium truncate">{file.name}</p>
+          <p className="text-sm text-muted-foreground">
+            {(file.size / 1024 / 1024).toFixed(2)} MB
+          </p>
+        </div>
+      </div>
+      <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-white-200 border border-black-300 rounded-md">
+        {file.status === "In Progress" ? (
+          <div className="spinner"></div>
+        ) : file.status === "Failed!" ? (
+          <X className="h-5 w-5 text-red-500" /> // Show 'cross' icon for failed status
+        ) : (
+          <Eye className="h-5 w-5" />
+        )}
+      </div>
+    </CardContent>
+  </Card>
+))}
         </div>
 
         <Dialog
