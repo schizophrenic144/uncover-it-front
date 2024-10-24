@@ -68,7 +68,8 @@ export default function FileUploadHomepage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // New state for loading
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(""); // New state for error message
 
   const calculateSha256 = async (file) => {
     try {
@@ -89,7 +90,7 @@ export default function FileUploadHomepage() {
 
   const getSampleData = async (selected) => {
     try {
-      selected.status = "In Progress"; // Set status to "In Progress"
+      selected.status = "In Progress";
       setIsLoading(true);
       const response = await fetch(
         `https://api.uncover.us.kg/sample/${selected.sha256}`
@@ -113,11 +114,22 @@ export default function FileUploadHomepage() {
   };
 
   const handleFileUpload = async (fileList) => {
+    if (fileList.length === 0) {
+      setErrorMessage("You need to pick a file to upload."); // Set error message for no file selected
+      return;
+    }
+
     const newFiles = Array.from(fileList);
     const validFiles = newFiles.filter(
       (file) => file.size <= 100 * 1024 * 1024
     ); // 100MB limit
-    validFiles.forEach((file) => (file.status = "In Progress")); // Set status to "In Progress"
+
+    if (validFiles.length !== newFiles.length) {
+      setErrorMessage("The maximum file size limit is 100MB."); // Set error message
+      return; // Exit the function if any file is too large
+    }
+
+    validFiles.forEach((file) => (file.status = "In Progress"));
     setFiles((prevFiles) => [...prevFiles, ...validFiles]);
 
     const sha256Hash = await calculateSha256(validFiles[0]);
@@ -138,14 +150,14 @@ export default function FileUploadHomepage() {
       });
       const data = await response.json();
       if (data.message === "Done") {
-        validFiles[0].status = "Success!"; // Update status to "Success!"
+        validFiles[0].status = "Success!";
       } else {
-        validFiles[0].status = "Failed!"; // Update status to "Failed!"
+        validFiles[0].status = "Failed!";
       }
     } else {
-      validFiles[0].status = "Success!"; // If file already exists, mark as "Success!"
+      validFiles[0].status = "Success!";
     }
-    setFiles((prevFiles) => [...prevFiles]); // Trigger re-render
+    setFiles((prevFiles) => [...prevFiles]);
   };
 
   const handleInputChange = (event) => {
@@ -440,6 +452,18 @@ export default function FileUploadHomepage() {
             )}
           </DialogContent>
         </Dialog>
+
+        {errorMessage && (
+          <div className="fixed bottom-0 left-0 right-0 bg-red-500 text-white text-center py-2">
+            {errorMessage}
+            <button
+              className="ml-4 underline"
+              onClick={() => setErrorMessage("")}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
