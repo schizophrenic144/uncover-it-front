@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { X } from "lucide-react"; 
+import { X, Skull } from "lucide-react"; // Import Skull icon
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import sha256 from "js-sha256";
 import "./cursor.css";
+import { Button } from "@/components/ui/button"; // Import Button from shadcn
 
 // Navbar Component
 function Navbar() {
@@ -70,6 +71,7 @@ export default function FileUploadHomepage() {
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(""); // New state for error message
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false); // State for config dialog
 
   const calculateSha256 = async (file) => {
     try {
@@ -97,6 +99,8 @@ export default function FileUploadHomepage() {
       );
       if (!response.ok) {
         selected.status = "Failed!";
+        setErrorMessage("Failed to fetch sample data from the API."); // Set error message for fetch failure
+        console.warn("API response was not ok:", response.statusText); // Log warning instead of throwing
         return;
       }
       const data = await response.json();
@@ -107,11 +111,17 @@ export default function FileUploadHomepage() {
       selected.status = "Success!";
     } catch (error) {
       selected.status = "Failed!";
-      console.error("Error fetching data:", error);
+      if (error instanceof TypeError && error.message === "Failed to fetch") {
+        setErrorMessage("Network error: Unable to reach the API."); // Handle network error
+      } else {
+        setErrorMessage("Error fetching data from the API."); // Handle other errors
+      }
+      console.error("Error fetching data:", error); // Log error to console
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const handleFileUpload = async (fileList) => {
     if (fileList.length === 0) {
@@ -120,13 +130,16 @@ export default function FileUploadHomepage() {
     }
 
     const newFiles = Array.from(fileList);
-    const validFiles = newFiles.filter(
-      (file) => file.size <= 100 * 1024 * 1024
-    ); // 100MB limit
+    const validFiles = newFiles.filter((file) => {
+      if (!file.name.endsWith('.exe')) {
+        setErrorMessage("Only executables (.exe) files are supported."); // Set error message for non-executable files
+        return false;
+      }
+      return file.size <= 100 * 1024 * 1024; // 100MB limit
+    });
 
-    if (validFiles.length !== newFiles.length) {
-      setErrorMessage("The maximum file size limit is 100MB."); // Set error message
-      return; // Exit the function if any file is too large
+    if (validFiles.length === 0) {
+      return; // Exit the function if no valid files
     }
 
     validFiles.forEach((file) => (file.status = "In Progress"));
@@ -351,40 +364,37 @@ export default function FileUploadHomepage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredFiles.map((file, index) => (
-  <Card
-    key={index}
-    className="cursor-pointer hover:shadow-md transition-shadow duration-200 clickable"
-    onClick={() => handleFileClick(file)}
-  >
-    <CardContent className="p-4 flex items-center justify-between">
-      <div className="flex items-start space-x-3 flex-grow min-w-0">
-        <File className="h-8 w-8 text-muted-foreground flex-shrink-0 mt-1" />
-        <div className="flex-grow min-w-0">
-          <p className="font-medium truncate">{file.name}</p>
-          <p className="text-sm text-muted-foreground">
-            {(file.size / 1024 / 1024).toFixed(2)} MB
-          </p>
-        </div>
-      </div>
-      <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-white-200 border border-black-300 rounded-md">
-        {file.status === "In Progress" ? (
-          <div className="spinner"></div>
-        ) : file.status === "Failed!" ? (
-          <X className="h-5 w-5 text-red-500" /> // Show 'cross' icon for failed status
-        ) : (
-          <Eye className="h-5 w-5" />
-        )}
-      </div>
-    </CardContent>
-  </Card>
-))}
+          {filteredFiles.map((file, index) => (
+            <Card
+              key={index}
+              className="cursor-pointer hover:shadow-md transition-shadow duration-200 clickable"
+              onClick={() => handleFileClick(file)}
+            >
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-start space-x-3 flex-grow min-w-0">
+                  <File className="h-8 w-8 text-muted-foreground flex-shrink-0 mt-1" />
+                  <div className="flex-grow min-w-0">
+                    <p className="font-medium truncate">{file.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
+                <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-white-200 border border-black-300 rounded-md">
+                  {file.status === "In Progress" ? (
+                    <div className="spinner"></div>
+                  ) : file.status === "Failed!" ? (
+                    <X className="h-5 w-5 text-red-500" /> // Show 'cross' icon for failed status
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        <Dialog
-          open={!!selectedFile}
-          onOpenChange={() => setSelectedFile(null)}
-        >
+        <Dialog open={!!selectedFile} onOpenChange={() => setSelectedFile(null)}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>File Details</DialogTitle>
@@ -397,7 +407,7 @@ export default function FileUploadHomepage() {
                 <div className="flex items-center gap-4">
                   <FileText className="h-10 w-10 text-muted-foreground" />
                   <div className="flex-grow min-w-0 overflow-hidden">
-                    <p className="font-medium break-words overflow-wrap">
+                    <p className="font-medium break-words overflow-wrap truncate">
                       {selectedFile.name}
                     </p>
                     <p className="text-sm text-muted-foreground">
@@ -450,8 +460,28 @@ export default function FileUploadHomepage() {
                     {selectedFile.tag || "Unknown"}
                   </div>
                 </div>
+                <Button
+                  className="text-white"
+                  onClick={() => setIsConfigDialogOpen(true)}
+                >
+                  <Skull className="h-5 w-5" />
+                  Malware config
+                </Button>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
+          <DialogContent className="max-w-4xl h-[80vh]"> {/* Adjusted size */}
+            <DialogHeader>
+              <DialogTitle>Malware Config</DialogTitle>
+            </DialogHeader>
+            <div className="p-4 overflow-auto h-full">
+              <pre className="whitespace-pre-wrap">
+                {selectedFile?.config || "No config available"}
+              </pre>
+            </div>
           </DialogContent>
         </Dialog>
 
