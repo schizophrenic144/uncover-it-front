@@ -74,8 +74,7 @@ export default function FileUploadHomepage() {
   const calculateSha256 = async (file: File) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const byteArray = new Uint8Array(arrayBuffer);
-      const hashedValue = sha256(byteArray);
+      const hashedValue = sha256.arrayBuffer(arrayBuffer); // Use arrayBuffer method
       return hashedValue;
     } catch (error) {
       return error;
