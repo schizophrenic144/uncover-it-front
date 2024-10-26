@@ -31,10 +31,11 @@ function Navbar() {
                 About
               </Link>
               <Link
-                href="/contact"
+                href="https://discord.gg/qmF4END38T"
                 className="text-gray-800 hover:bg-gray-200 px-3 py-2 rounded-md text-sm font-medium"
+                target="_blank"
               >
-                Contact
+                Discord
               </Link>
             </div>
           </div>
