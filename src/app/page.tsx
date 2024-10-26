@@ -157,6 +157,9 @@ export default function FileUploadHomepage() {
     }
   }, [selectedFile]);
 
+  function formatConfig(config: string): string {
+    return config.replace(/<br>/g, '\n');
+  }
   const getSampleData = async (selected: ExtendedFile) => {
     try {
       selected.status = "In Progress";
@@ -171,7 +174,7 @@ export default function FileUploadHomepage() {
       const data = await response.json();
       selected.tag = data.tag;
       selected.family = data.family;
-      selected.config = data.config;
+      selected.config = formatConfig(data.config);
       selected.tag = data.tag;
       selected.status = "Success!";
     } catch (error) {
@@ -183,7 +186,7 @@ export default function FileUploadHomepage() {
       }
       console.error("Error fetching data:", error);
     }
-  };
+  };  
 
   const handleFileUpload = async (fileList: FileList) => {
     if (fileList.length === 0) {
