@@ -69,7 +69,6 @@ export default function FileUploadHomepage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(""); // New state for error message
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false); // State for config dialog
 
@@ -93,7 +92,6 @@ export default function FileUploadHomepage() {
   const getSampleData = async (selected) => {
     try {
       selected.status = "In Progress";
-      setIsLoading(true);
       const response = await fetch(
         `${process.env.API_KEY}/sample/${selected.sha256}`
       );
@@ -117,8 +115,6 @@ export default function FileUploadHomepage() {
         setErrorMessage("Error fetching data from the API.");
       }
       console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
