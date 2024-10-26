@@ -220,14 +220,14 @@ export default function FileUploadHomepage() {
     const cursor = document.createElement("div");
     cursor.classList.add("custom-cursor", "expanded");
     document.body.appendChild(cursor);
-
-    const handleMouseMove = (e) => {
+  
+    const handleMouseMove = (e: MouseEvent) => {
       cursor.style.left = `${e.pageX}px`;
       cursor.style.top = `${e.pageY}px`;
     };
-
-    const handleMouseOver = (e) => {
-      if (e.target.closest("a, button, input, .clickable")) {
+  
+    const handleMouseOver = (e: MouseEvent) => {
+      if (e.target instanceof HTMLElement && e.target.closest("a, button, input, .clickable")) {
         cursor.classList.remove("expanded");
         cursor.classList.add("contracted");
       } else {
@@ -235,18 +235,18 @@ export default function FileUploadHomepage() {
         cursor.classList.add("expanded");
       }
     };
-
+  
     const handleClick = () => {
       cursor.classList.add("clicked");
       setTimeout(() => {
         cursor.classList.remove("clicked");
       }, 100);
     };
-
+  
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseover", handleMouseOver);
     document.addEventListener("click", handleClick);
-
+  
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseover", handleMouseOver);
