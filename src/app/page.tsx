@@ -121,57 +121,6 @@ export default function FileUploadHomepage() {
       setIsLoading(false);
     }
   };
-  
-  const handleFileUpload = async (fileList) => {
-    if (fileList.length === 0) {
-      setErrorMessage("You need to pick a file to upload.");
-      return;
-    }
-  
-    const newFiles = Array.from(fileList);
-    const validFiles = newFiles.filter((file) => {
-      if (!file.name.endsWith('.exe')) {
-        setErrorMessage("Only executables (.exe) files are supported.");
-        return false;
-      }
-      return file.size <= 100 * 1024 * 1024; // 100MB limit
-    });
-  
-    if (validFiles.length === 0) {
-      return;
-    }
-  
-    validFiles.forEach((file) => (file.status = "In Progress"));
-    setFiles((prevFiles) => [...prevFiles, ...validFiles]);
-  
-    const sha256Hash = await calculateSha256(validFiles[0]);
-    validFiles[0].sha256 = sha256Hash;
-    const sha256Response = await fetch(`${process.env.API_KEY}/hash`, {
-      method: "POST",
-      body: JSON.stringify({ "256": sha256Hash }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const sha256Data = await sha256Response.json();
-    if (!sha256Data.exists) {
-      const formData = new FormData();
-      formData.append("file", validFiles[0]);
-      formData.append("256", sha256Hash);
-      const response = await fetch(`${process.env.API_KEY}/upload`, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      if (data.message === "Done") {
-        validFiles[0].status = "Success!";
-      } else {
-        validFiles[0].status = "Failed!";
-      }
-    } else {
-      validFiles[0].status = "Success!";
-    }
-    setFiles((prevFiles) => [...prevFiles]);
-  };
-
 
   const handleFileUpload = async (fileList) => {
     if (fileList.length === 0) {
