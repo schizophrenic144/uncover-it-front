@@ -500,17 +500,17 @@ export default function FileUploadHomepage() {
         </Dialog>
 
         <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
-  <DialogContent className="max-w-4xl h-[80vh]"> {/* Adjusted size */}
-    <DialogHeader>
-      <DialogTitle>Malware Config</DialogTitle>
-    </DialogHeader>
-    <div className="p-4 overflow-auto h-full">
-      <pre className="whitespace-pre-wrap">
-        {selectedFile?.config?.replace(/<br>/g, '\n') || "No config available"}
-      </pre>
-    </div>
-  </DialogContent>
-</Dialog>
+          <DialogContent className="max-w-4xl h-[80vh]"> {/* Adjusted size */}
+            <DialogHeader>
+              <DialogTitle>Malware Config</DialogTitle>
+            </DialogHeader>
+            <div className="p-4 overflow-auto h-full">
+              <pre className="whitespace-pre-wrap">
+                {selectedFile?.config || "No config available"}
+              </pre>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {errorMessage && (
           <div className="fixed bottom-0 left-0 right-0 bg-red-500 text-white text-center py-2">
