@@ -1,0 +1,36 @@
+* {
+  cursor: none; /* Hide the default cursor for all elements */
+}
+
+.custom-cursor {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  transition: transform 0.1s ease, width 0.1s ease, height 0.1s ease;
+  transform: translate(-50%, -50%);
+  z-index: 9999; /* Ensure the cursor is on top of all other elements */
+}
+
+.custom-cursor.expanded {
+  width: 30px;
+  height: 30px;
+}
+
+.custom-cursor.contracted {
+  width: 20px;
+  height: 20px;
+}
+
+.custom-cursor.clicked {
+  width: 15px;
+  height: 15px;
+}
+
+@media (max-width: 768px) {
+  .custom-cursor {
+    display: none;
+  }
+}
