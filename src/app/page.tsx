@@ -22,7 +22,7 @@ import {
   HardDrive,
   Eye,
 } from "lucide-react";
-import sha256 from "js-sha256";
+import { sha256 } from "js-sha256";
 import "./cursor.css";
 import { Button } from "@/components/ui/button"; // Import Button from shadcn
 
