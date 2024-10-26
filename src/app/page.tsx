@@ -64,14 +64,14 @@ function Navbar() {
 }
 
 export default function FileUploadHomepage() {
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [errorMessage, setErrorMessage] = useState(""); // New state for error message
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false); // State for config dialog
 
-  const calculateSha256 = async (file) => {
+  const calculateSha256 = async (file: File) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const byteArray = new Uint8Array(arrayBuffer);
@@ -88,7 +88,7 @@ export default function FileUploadHomepage() {
     }
   }, [selectedFile]);
 
-  const getSampleData = async (selected) => {
+  const getSampleData = async (selected: File) => {
     try {
       selected.status = "In Progress";
       const response = await fetch(
@@ -117,7 +117,7 @@ export default function FileUploadHomepage() {
     }
   };
 
-  const handleFileUpload = async (fileList) => {
+  const handleFileUpload = async (fileList: FileList) => {
     if (fileList.length === 0) {
       setErrorMessage("You need to pick a file to upload.");
       return;
@@ -167,11 +167,11 @@ export default function FileUploadHomepage() {
     setFiles((prevFiles) => [...prevFiles]);
   };
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleFileUpload(event.target.files);
   };
 
-  const handleDrop = (event) => {
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
     handleFileUpload(event.dataTransfer.files);
@@ -212,7 +212,7 @@ export default function FileUploadHomepage() {
     };
   }, [files]);
 
-  const handleFileClick = (file) => {
+  const handleFileClick = (file: File) => {
     setSelectedFile(file);
   };
 
