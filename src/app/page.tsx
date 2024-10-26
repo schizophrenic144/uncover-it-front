@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { X, Skull } from "lucide-react"; // Import Skull icon
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,6 @@ import {
   HardDrive,
   Eye,
 } from "lucide-react";
-import forge from 'node-forge';
 import "./cursor.css";
 import { Button } from "@/components/ui/button"; // Import Button from shadcn
 
@@ -80,17 +79,68 @@ export default function FileUploadHomepage() {
   const [errorMessage, setErrorMessage] = useState(""); // New state for error message
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false); // State for config dialog
 
+  const cursorRef = useRef<HTMLDivElement | null>(null); // Create a ref for the cursor
+
+  useEffect(() => {
+    if (!cursorRef.current) {
+      const cursor = document.createElement("div");
+      cursor.classList.add("custom-cursor", "expanded");
+      document.body.appendChild(cursor);
+      cursorRef.current = cursor;
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.left = `${e.pageX}px`;
+        cursorRef.current.style.top = `${e.pageY}px`;
+      }
+    };
+
+    const handleMouseOver = (e: MouseEvent) => {
+      if (cursorRef.current) {
+        if (e.target instanceof HTMLElement && e.target.closest("a, button, input, .clickable")) {
+          cursorRef.current.classList.remove("expanded");
+          cursorRef.current.classList.add("contracted");
+        } else {
+          cursorRef.current.classList.remove("contracted");
+          cursorRef.current.classList.add("expanded");
+        }
+      }
+    };
+
+    const handleClick = () => {
+      if (cursorRef.current) {
+        cursorRef.current.classList.add("clicked");
+        setTimeout(() => {
+          cursorRef.current?.classList.remove("clicked");
+        }, 100);
+      }
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseover", handleMouseOver);
+    document.addEventListener("click", handleClick);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseover", handleMouseOver);
+      document.removeEventListener("click", handleClick);
+      if (cursorRef.current && document.body.contains(cursorRef.current)) {
+        document.body.removeChild(cursorRef.current);
+        cursorRef.current = null;
+      }
+    };
+  }, []); // Empty dependency array to ensure it runs only once
+
   const calculateSha256 = async (file: ExtendedFile) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const byteArray = new Uint8Array(arrayBuffer);
-      const binaryString = byteArray.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
-      const md = forge.md.sha256.create();
-      md.update(binaryString);
-      const hashedValue = md.digest().toHex();
-      return hashedValue;
+      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+      return hashHex;
     } catch (error) {
-      console.log("Failed to calc hash",error)
+      console.log("Failed to calculate hash", error);
       return undefined;
     }
   };
@@ -230,45 +280,6 @@ export default function FileUploadHomepage() {
   const handleFileClick = (file: ExtendedFile) => {
     setSelectedFile(file);
   };
-
-  useEffect(() => {
-    const cursor = document.createElement("div");
-    cursor.classList.add("custom-cursor", "expanded");
-    document.body.appendChild(cursor);
-  
-    const handleMouseMove = (e: MouseEvent) => {
-      cursor.style.left = `${e.pageX}px`;
-      cursor.style.top = `${e.pageY}px`;
-    };
-  
-    const handleMouseOver = (e: MouseEvent) => {
-      if (e.target instanceof HTMLElement && e.target.closest("a, button, input, .clickable")) {
-        cursor.classList.remove("expanded");
-        cursor.classList.add("contracted");
-      } else {
-        cursor.classList.remove("contracted");
-        cursor.classList.add("expanded");
-      }
-    };
-  
-    const handleClick = () => {
-      cursor.classList.add("clicked");
-      setTimeout(() => {
-        cursor.classList.remove("clicked");
-      }, 100);
-    };
-  
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseover", handleMouseOver);
-    document.addEventListener("click", handleClick);
-  
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseover", handleMouseOver);
-      document.removeEventListener("click", handleClick);
-      document.body.removeChild(cursor);
-    };
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100">
