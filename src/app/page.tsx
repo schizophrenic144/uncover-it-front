@@ -90,7 +90,7 @@ export default function FileUploadHomepage() {
       const hashedValue = md.digest().toHex();
       return hashedValue;
     } catch (error) {
-      return error;
+      return undefined;
     }
   };
 
@@ -161,8 +161,10 @@ export default function FileUploadHomepage() {
     const sha256Data = await sha256Response.json();
     if (!sha256Data.exists) {
       const formData = new FormData();
-      formData.append("file", validFiles[0]);
-      formData.append("256", sha256Hash);
+      if (sha256Hash){
+          formData.append("file", validFiles[0]);
+          formData.append("256", sha256Hash);
+      }
       const response = await fetch(`${process.env.API_KEY}/upload`, {
         method: "POST",
         body: formData,
@@ -180,7 +182,9 @@ export default function FileUploadHomepage() {
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleFileUpload(event.target.files);
+    if (event.target.files){
+      handleFileUpload(event.target.files);
+    }
   };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -199,27 +203,25 @@ export default function FileUploadHomepage() {
   const fileAnalysis = useMemo(() => {
     const totalSize = files.reduce((acc, file) => acc + file.size, 0);
     const averageSize = files.length > 0 ? totalSize / files.length : 0;
+    
+    // Provide an initial value with both 'size' and 'name' properties
     const largestFile = files.reduce(
       (largest, file) => (file.size > largest.size ? file : largest),
-      { size: 0 }
+      { size: 0, name: "N/A" }
     );
     const smallestFile = files.reduce(
       (smallest, file) => (file.size < smallest.size ? file : smallest),
-      { size: Infinity }
+      { size: Infinity, name: "N/A" }
     );
-
+  
     return {
       totalSize: (totalSize / (1024 * 1024)).toFixed(2),
       averageSize: (averageSize / (1024 * 1024)).toFixed(2),
       largestFile: largestFile.name
-        ? `${largestFile.name} (${(largestFile.size / (1024 * 1024)).toFixed(
-            2
-          )} MB)`
+        ? `${largestFile.name} (${(largestFile.size / (1024 * 1024)).toFixed(2)} MB)`
         : "N/A",
       smallestFile: smallestFile.name
-        ? `${smallestFile.name} (${(smallestFile.size / (1024 * 1024)).toFixed(
-            2
-          )} MB)`
+        ? `${smallestFile.name} (${(smallestFile.size / (1024 * 1024)).toFixed(2)} MB)`
         : "N/A",
     };
   }, [files]);
@@ -302,9 +304,16 @@ export default function FileUploadHomepage() {
         >
           <Card>
             <CardContent
-              className="p-6 flex flex-col items-center justify-center clickable"
-              onClick={() => document.getElementById("file-upload").click()}
-            >
+                className="p-6 flex flex-col items-center justify-center clickable"
+                onClick={() => {
+                  const fileUploadElement = document.getElementById("file-upload");
+                  if (fileUploadElement) {
+                    fileUploadElement.click();
+                  } else {
+                    console.error("File upload element not found.");
+                  }
+                }}
+              >
               <Label
                 htmlFor="file-upload"
                 className="cursor-pointer"
