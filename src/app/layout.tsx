@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     siteName: "uncover.us.kg",
     images: [
       {
-        url: "https://github.com/WarFiN123/docs-bugattipvp/blob/main/app/opengraph-image.png?raw=true",
+        url: "https://iili.io/2qkmLw7.md.png",
         width: 1200,
         height: 630,
       },
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     description:
       "Uncover the hidden malware, don't let it uncover you!",
     images: [
-      "https://github.com/WarFiN123/docs-bugattipvp/blob/main/app/opengraph-image.png?raw=true",
+      "https://iili.io/2qkmLw7.md.png",
     ],
   },
   icons: {
