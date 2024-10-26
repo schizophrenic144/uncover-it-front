@@ -160,7 +160,6 @@ export default function FileUploadHomepage() {
       );
       if (!response.ok) {
         selected.status = "Failed!";
-        setErrorMessage("Failed to fetch sample data from the API.");
         console.warn("API response was not ok:", response.statusText);
         return;
       }
@@ -179,7 +178,7 @@ export default function FileUploadHomepage() {
       }
       console.error("Error fetching data:", error);
     }
-  };
+  };  
 
   const handleFileUpload = async (fileList: FileList) => {
     if (fileList.length === 0) {
