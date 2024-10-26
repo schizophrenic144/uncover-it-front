@@ -95,12 +95,12 @@ export default function FileUploadHomepage() {
       selected.status = "In Progress";
       setIsLoading(true);
       const response = await fetch(
-        `https://api.uncover.us.kg/sample/${selected.sha256}`
+        `${process.env.API_KEY}/sample/${selected.sha256}`
       );
       if (!response.ok) {
         selected.status = "Failed!";
-        setErrorMessage("Failed to fetch sample data from the API."); // Set error message for fetch failure
-        console.warn("API response was not ok:", response.statusText); // Log warning instead of throwing
+        setErrorMessage("Failed to fetch sample data from the API.");
+        console.warn("API response was not ok:", response.statusText);
         return;
       }
       const data = await response.json();
@@ -112,14 +112,64 @@ export default function FileUploadHomepage() {
     } catch (error) {
       selected.status = "Failed!";
       if (error instanceof TypeError && error.message === "Failed to fetch") {
-        setErrorMessage("Network error: Unable to reach the API."); // Handle network error
+        setErrorMessage("Network error: Unable to reach the API.");
       } else {
-        setErrorMessage("Error fetching data from the API."); // Handle other errors
+        setErrorMessage("Error fetching data from the API.");
       }
-      console.error("Error fetching data:", error); // Log error to console
+      console.error("Error fetching data:", error);
     } finally {
       setIsLoading(false);
     }
+  };
+  
+  const handleFileUpload = async (fileList) => {
+    if (fileList.length === 0) {
+      setErrorMessage("You need to pick a file to upload.");
+      return;
+    }
+  
+    const newFiles = Array.from(fileList);
+    const validFiles = newFiles.filter((file) => {
+      if (!file.name.endsWith('.exe')) {
+        setErrorMessage("Only executables (.exe) files are supported.");
+        return false;
+      }
+      return file.size <= 100 * 1024 * 1024; // 100MB limit
+    });
+  
+    if (validFiles.length === 0) {
+      return;
+    }
+  
+    validFiles.forEach((file) => (file.status = "In Progress"));
+    setFiles((prevFiles) => [...prevFiles, ...validFiles]);
+  
+    const sha256Hash = await calculateSha256(validFiles[0]);
+    validFiles[0].sha256 = sha256Hash;
+    const sha256Response = await fetch(`${process.env.API_KEY}/hash`, {
+      method: "POST",
+      body: JSON.stringify({ "256": sha256Hash }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const sha256Data = await sha256Response.json();
+    if (!sha256Data.exists) {
+      const formData = new FormData();
+      formData.append("file", validFiles[0]);
+      formData.append("256", sha256Hash);
+      const response = await fetch(`${process.env.API_KEY}/upload`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.message === "Done") {
+        validFiles[0].status = "Success!";
+      } else {
+        validFiles[0].status = "Failed!";
+      }
+    } else {
+      validFiles[0].status = "Success!";
+    }
+    setFiles((prevFiles) => [...prevFiles]);
   };
 
 
