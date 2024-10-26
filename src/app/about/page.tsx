@@ -69,12 +69,12 @@ export default function AboutPage() {
     cursor.classList.add("custom-cursor", "expanded");
     document.body.appendChild(cursor);
   
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       cursor.style.left = `${e.pageX}px`;
       cursor.style.top = `${e.pageY}px`;
     };
   
-    const handleMouseOver = (e) => {
+    const handleMouseOver = (e: MouseEvent) => {
       if (e.target.closest("a, button, input, .clickable")) {
         cursor.classList.remove("expanded");
         cursor.classList.add("contracted");
