@@ -75,7 +75,7 @@ export default function AboutPage() {
     };
   
     const handleMouseOver = (e: MouseEvent) => {
-      if (e.target.closest("a, button, input, .clickable")) {
+      if (e.target instanceof HTMLElement && e.target.closest("a, button, input, .clickable")) {
         cursor.classList.remove("expanded");
         cursor.classList.add("contracted");
       } else {
