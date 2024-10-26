@@ -158,18 +158,20 @@ export default function FileUploadHomepage() {
       const response = await fetch(
         `https://api.uncover.us.kg/sample/${selected.sha256}`
       );
-      if (!response.ok) {
+      if (response.ok) {
+        const data = await response.json();
+        selected.tag = data.tag;
+        selected.family = data.family;
+        selected.config = data.config;
+        selected.tag = data.tag;
+        selected.status = "Success!";
+      }
+      else if(response.status === 500){
         selected.status = "Failed!";
         setErrorMessage("Failed to fetch sample data from the API.");
         console.warn("API response was not ok:", response.statusText);
         return;
       }
-      const data = await response.json();
-      selected.tag = data.tag;
-      selected.family = data.family;
-      selected.config = data.config;
-      selected.tag = data.tag;
-      selected.status = "Success!";
     } catch (error) {
       selected.status = "Failed!";
       if (error instanceof TypeError && error.message === "Failed to fetch") {
