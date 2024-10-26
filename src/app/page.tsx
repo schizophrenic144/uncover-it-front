@@ -22,7 +22,7 @@ import {
   HardDrive,
   Eye,
 } from "lucide-react";
-import sha256 from "js-sha256"; // Ensure correct import
+import forge from 'node-forge';
 import "./cursor.css";
 import { Button } from "@/components/ui/button"; // Import Button from shadcn
 
@@ -84,7 +84,10 @@ export default function FileUploadHomepage() {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const byteArray = new Uint8Array(arrayBuffer);
-      const hashedValue = sha256(byteArray); // Use sha256 directly on Uint8Array
+      const binaryString = byteArray.reduce((acc, byte) => acc + String.fromCharCode(byte), '');
+      const md = forge.md.sha256.create();
+      md.update(binaryString);
+      const hashedValue = md.digest().toHex();
       return hashedValue;
     } catch (error) {
       return error;
