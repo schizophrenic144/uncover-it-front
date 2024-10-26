@@ -105,7 +105,7 @@ export default function FileUploadHomepage() {
     try {
       selected.status = "In Progress";
       const response = await fetch(
-        `https://analytics.uncover.us.kg/sample/${selected.sha256}`
+        `https://api.uncover.us.kg/sample/${selected.sha256}`
       );
       if (!response.ok) {
         selected.status = "Failed!";
@@ -154,7 +154,7 @@ export default function FileUploadHomepage() {
 
     const sha256Hash = await calculateSha256(validFiles[0]);
     validFiles[0].sha256 = sha256Hash;
-    const sha256Response = await fetch(`https://analytics.uncover.us.kg/hash`, {
+    const sha256Response = await fetch(`https://api.uncover.us.kg/hash`, {
       method: "POST",
       body: JSON.stringify({ "256": sha256Hash }),
       headers: { "Content-Type": "application/json" },
@@ -166,7 +166,7 @@ export default function FileUploadHomepage() {
           formData.append("file", validFiles[0]);
           formData.append("256", sha256Hash);
       }
-      const response = await fetch(`https://analytics.uncover.us.kg/upload`, {
+      const response = await fetch(`https://api.uncover.us.kg/upload`, {
         method: "POST",
         body: formData,
       });
