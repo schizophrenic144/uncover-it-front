@@ -158,20 +158,18 @@ export default function FileUploadHomepage() {
       const response = await fetch(
         `https://api.uncover.us.kg/sample/${selected.sha256}`
       );
-      if (response.ok) {
-        const data = await response.json();
-        selected.tag = data.tag;
-        selected.family = data.family;
-        selected.config = data.config;
-        selected.tag = data.tag;
-        selected.status = "Success!";
-      }
-      else if(response.status === 500){
+      if (!response.ok) {
         selected.status = "Failed!";
         setErrorMessage("Failed to fetch sample data from the API.");
         console.warn("API response was not ok:", response.statusText);
         return;
       }
+      const data = await response.json();
+      selected.tag = data.tag;
+      selected.family = data.family;
+      selected.config = data.config;
+      selected.tag = data.tag;
+      selected.status = "Success!";
     } catch (error) {
       selected.status = "Failed!";
       if (error instanceof TypeError && error.message === "Failed to fetch") {
@@ -503,17 +501,17 @@ export default function FileUploadHomepage() {
         </Dialog>
 
         <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
-  <DialogContent className="max-w-4xl h-[80vh]"> {/* Adjusted size */}
-    <DialogHeader>
-      <DialogTitle>Malware Config</DialogTitle>
-    </DialogHeader>
-    <div className="p-4 overflow-auto h-full">
-      <pre className="whitespace-pre-wrap">
-        {selectedFile?.config?.replace(/<br>/g, '\n') || "No config available"}
-      </pre>
-    </div>
-  </DialogContent>
-</Dialog>
+          <DialogContent className="max-w-4xl h-[80vh]"> {/* Adjusted size */}
+            <DialogHeader>
+              <DialogTitle>Malware Config</DialogTitle>
+            </DialogHeader>
+            <div className="p-4 overflow-auto h-full">
+              <pre className="whitespace-pre-wrap">
+                {selectedFile?.config || "No config available"}
+              </pre>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {errorMessage && (
           <div className="fixed bottom-0 left-0 right-0 bg-red-500 text-white text-center py-2">
