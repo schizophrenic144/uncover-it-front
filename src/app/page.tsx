@@ -22,9 +22,18 @@ import {
   HardDrive,
   Eye,
 } from "lucide-react";
-import { sha256 } from "js-sha256";
+import sha256 from "js-sha256"; // Ensure correct import
 import "./cursor.css";
 import { Button } from "@/components/ui/button"; // Import Button from shadcn
+
+// Define a custom type that extends the File interface
+interface ExtendedFile extends File {
+  status?: string;
+  sha256?: string;
+  tag?: string;
+  family?: string;
+  config?: string;
+}
 
 // Navbar Component
 function Navbar() {
@@ -64,14 +73,14 @@ function Navbar() {
 }
 
 export default function FileUploadHomepage() {
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<ExtendedFile[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<ExtendedFile | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [errorMessage, setErrorMessage] = useState(""); // New state for error message
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false); // State for config dialog
 
-  const calculateSha256 = async (file: File) => {
+  const calculateSha256 = async (file: ExtendedFile) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const byteArray = new Uint8Array(arrayBuffer);
@@ -88,7 +97,7 @@ export default function FileUploadHomepage() {
     }
   }, [selectedFile]);
 
-  const getSampleData = async (selected: File) => {
+  const getSampleData = async (selected: ExtendedFile) => {
     try {
       selected.status = "In Progress";
       const response = await fetch(
@@ -123,7 +132,7 @@ export default function FileUploadHomepage() {
       return;
     }
 
-    const newFiles = Array.from(fileList);
+    const newFiles = Array.from(fileList) as ExtendedFile[];
     const validFiles = newFiles.filter((file) => {
       if (!file.name.endsWith('.exe')) {
         setErrorMessage("Only executables (.exe) files are supported.");
@@ -212,7 +221,7 @@ export default function FileUploadHomepage() {
     };
   }, [files]);
 
-  const handleFileClick = (file: File) => {
+  const handleFileClick = (file: ExtendedFile) => {
     setSelectedFile(file);
   };
 
