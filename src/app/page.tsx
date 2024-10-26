@@ -90,6 +90,7 @@ export default function FileUploadHomepage() {
       const hashedValue = md.digest().toHex();
       return hashedValue;
     } catch (error) {
+      console.log("Failed to calc hash",error)
       return undefined;
     }
   };
