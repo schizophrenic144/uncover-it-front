@@ -99,7 +99,10 @@ export default function FileUploadHomepage() {
 
     const handleMouseOver = (e: MouseEvent) => {
       if (cursorRef.current) {
-        if (e.target instanceof HTMLElement && e.target.closest("a, button, input, .clickable")) {
+        if (
+          e.target instanceof HTMLElement &&
+          e.target.closest("a, button, input, .clickable")
+        ) {
           cursorRef.current.classList.remove("expanded");
           cursorRef.current.classList.add("contracted");
         } else {
@@ -136,9 +139,11 @@ export default function FileUploadHomepage() {
   const calculateSha256 = async (file: ExtendedFile) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+      const hashHex = hashArray
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
       return hashHex;
     } catch (error) {
       console.log("Failed to calculate hash", error);
@@ -178,7 +183,7 @@ export default function FileUploadHomepage() {
       }
       console.error("Error fetching data:", error);
     }
-  };  
+  };
 
   const handleFileUpload = async (fileList: FileList) => {
     if (fileList.length === 0) {
@@ -188,7 +193,7 @@ export default function FileUploadHomepage() {
 
     const newFiles = Array.from(fileList) as ExtendedFile[];
     const validFiles = newFiles.filter((file) => {
-      if (!file.name.endsWith('.exe')) {
+      if (!file.name.endsWith(".exe")) {
         setErrorMessage("Only executables (.exe) files are supported.");
         return false;
       }
@@ -212,9 +217,9 @@ export default function FileUploadHomepage() {
     const sha256Data = await sha256Response.json();
     if (!sha256Data.exists) {
       const formData = new FormData();
-      if (sha256Hash){
-          formData.append("file", validFiles[0]);
-          formData.append("256", sha256Hash);
+      if (sha256Hash) {
+        formData.append("file", validFiles[0]);
+        formData.append("256", sha256Hash);
       }
       const response = await fetch(`https://api.uncover.us.kg/upload`, {
         method: "POST",
@@ -233,7 +238,7 @@ export default function FileUploadHomepage() {
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files){
+    if (event.target.files) {
       handleFileUpload(event.target.files);
     }
   };
@@ -254,7 +259,7 @@ export default function FileUploadHomepage() {
   const fileAnalysis = useMemo(() => {
     const totalSize = files.reduce((acc, file) => acc + file.size, 0);
     const averageSize = files.length > 0 ? totalSize / files.length : 0;
-    
+
     // Provide an initial value with both 'size' and 'name' properties
     const largestFile = files.reduce(
       (largest, file) => (file.size > largest.size ? file : largest),
@@ -264,7 +269,7 @@ export default function FileUploadHomepage() {
       (smallest, file) => (file.size < smallest.size ? file : smallest),
       { size: Infinity, name: "N/A" }
     );
-  
+
     return {
       totalSize: (totalSize / (1024 * 1024)).toFixed(2),
       averageSize: (averageSize / (1024 * 1024)).toFixed(2),
@@ -316,16 +321,17 @@ export default function FileUploadHomepage() {
         >
           <Card>
             <CardContent
-                className="p-6 flex flex-col items-center justify-center clickable"
-                onClick={() => {
-                  const fileUploadElement = document.getElementById("file-upload");
-                  if (fileUploadElement) {
-                    fileUploadElement.click();
-                  } else {
-                    console.error("File upload element not found.");
-                  }
-                }}
-              >
+              className="p-6 flex flex-col items-center justify-center clickable"
+              onClick={() => {
+                const fileUploadElement =
+                  document.getElementById("file-upload");
+                if (fileUploadElement) {
+                  fileUploadElement.click();
+                } else {
+                  console.error("File upload element not found.");
+                }
+              }}
+            >
               <Label
                 htmlFor="file-upload"
                 className="cursor-pointer"
@@ -421,7 +427,10 @@ export default function FileUploadHomepage() {
           ))}
         </div>
 
-        <Dialog open={!!selectedFile} onOpenChange={() => setSelectedFile(null)}>
+        <Dialog
+          open={!!selectedFile}
+          onOpenChange={() => setSelectedFile(null)}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>File Details</DialogTitle>
@@ -435,7 +444,9 @@ export default function FileUploadHomepage() {
                   <FileText className="h-10 w-10 text-muted-foreground" />
                   <div className="flex-grow min-w-0 overflow-hidden">
                     <p className="font-medium break-words overflow-wrap truncate">
-                      {selectedFile.name}
+                      {selectedFile.name.length > 30
+                        ? `${selectedFile.name.substring(0, 30)}...`
+                        : selectedFile.name}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
@@ -500,7 +511,9 @@ export default function FileUploadHomepage() {
         </Dialog>
 
         <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
-          <DialogContent className="max-w-4xl h-[80vh]"> {/* Adjusted size */}
+          <DialogContent className="max-w-4xl h-[80vh]">
+            {" "}
+            {/* Adjusted size */}
             <DialogHeader>
               <DialogTitle>Malware Config</DialogTitle>
             </DialogHeader>
