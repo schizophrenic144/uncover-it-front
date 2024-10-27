@@ -158,7 +158,7 @@ export default function FileUploadHomepage() {
   }, [selectedFile]);
 
   function formatConfig(config: string): string {
-    return config.replace(/<br>/g, '\n');
+    return config.replace(/<br>/g, "\n");
   }
 
   const getSampleData = async (selected: ExtendedFile) => {
@@ -198,7 +198,8 @@ export default function FileUploadHomepage() {
         setErrorMessage("Only executables (.exe) files are supported.");
         return false;
       }
-      if (file.size > 100 * 1024 * 1024) { // Check if file size is greater than 100MB
+      if (file.size > 100 * 1024 * 1024) {
+        // Check if file size is greater than 100MB
         setErrorMessage("File size exceeds the 100MB limit.");
         return false;
       }
@@ -231,14 +232,14 @@ export default function FileUploadHomepage() {
           method: "POST",
           body: formData,
         });
-        if(response.ok){
+        if (response.ok) {
           const data = await response.json();
           if (data.message === "Done") {
             validFiles[0].status = "Success!";
           } else {
             validFiles[0].status = "Failed!";
           }
-        } else{
+        } else {
           validFiles[0].status = "Failed!";
         }
       } else {
@@ -543,19 +544,22 @@ export default function FileUploadHomepage() {
         </Dialog>
 
         {errorMessage && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-center py-3 px-6 rounded-lg shadow-lg flex items-center justify-between w-11/12 sm:w-3/4 md:w-1/2 lg:max-w-md">
-          <span>{errorMessage}</span>
-          <button
-            className="ml-4 bg-red-700 hover:bg-red-800 rounded-full p-1 transition-colors clickable"
-            onClick={() => setErrorMessage("")}
-          >
-            <X className="h-4 w-4 text-white" />
-          </button>
-        </div>
-      )}
-    </div>
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-center py-3 px-6 rounded-lg shadow-lg flex items-center justify-between w-11/12 sm:w-3/4 md:w-1/2 lg:max-w-md">
+            <span>{errorMessage}</span>
+            <button
+              className="ml-4 bg-red-700 hover:bg-red-800 rounded-full p-1 transition-colors clickable"
+              onClick={() => setErrorMessage("")}
+            >
+              <X className="h-4 w-4 text-white" />
+            </button>
+          </div>
+        )}
+      </div>
       <div className="mt-6 flex justify-center">
-        <Link href="https://docs.google.com/spreadsheets/d/1ZBZtseZf7AM3aCEWG6Ar_V0NXNWmz42aDonaYEwsd5Q/edit?usp=sharing" passHref>
+        <Link
+          href="https://docs.google.com/spreadsheets/d/1ZBZtseZf7AM3aCEWG6Ar_V0NXNWmz42aDonaYEwsd5Q/edit?usp=sharing"
+          passHref
+        >
           <Button className="text-black bg-white shadow-md hover:bg-white/80 hover:shadow-lg">
             Supported Malware
           </Button>
