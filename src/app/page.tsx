@@ -200,7 +200,11 @@ export default function FileUploadHomepage() {
         setErrorMessage("Only executables (.exe) files are supported.");
         return false;
       }
-      return file.size <= 100 * 1024 * 1024; // 100MB limit
+      if (file.size > 100 * 1024 * 1024) { // Check if file size is greater than 100MB
+        setErrorMessage("File size exceeds the 100MB limit.");
+        return false;
+      }
+      return true;
     });
 
     if (validFiles.length === 0) {
