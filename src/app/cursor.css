@@ -34,3 +34,6 @@
     display: none;
   }
 }
+button:hover {
+  cursor: none; /* Hide the system cursor on button hover */
+}

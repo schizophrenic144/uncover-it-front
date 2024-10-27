@@ -546,6 +546,13 @@ const handleFileClick = (file: ExtendedFile) => {
           </div>
         )}
       </div>
+      <div className="mt-6 flex justify-center">
+        <Link href="https://docs.google.com/spreadsheets/d/1ZBZtseZf7AM3aCEWG6Ar_V0NXNWmz42aDonaYEwsd5Q/edit?usp=sharing" passHref>
+          <Button className="text-black bg-white shadow-md hover:bg-white/80 hover:shadow-lg">
+            Supported Malware
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }
