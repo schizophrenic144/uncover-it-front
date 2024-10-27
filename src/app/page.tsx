@@ -543,17 +543,17 @@ export default function FileUploadHomepage() {
         </Dialog>
 
         {errorMessage && (
-          <div className="fixed bottom-0 left-0 right-0 bg-red-500 text-white text-center py-2">
-            {errorMessage}
-            <button
-              className="ml-4 underline"
-              onClick={() => setErrorMessage("")}
-            >
-              Dismiss
-            </button>
-          </div>
-        )}
-      </div>
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-center py-3 px-6 rounded-lg shadow-lg flex items-center justify-between w-11/12 sm:w-3/4 md:w-1/2 lg:max-w-md">
+          <span>{errorMessage}</span>
+          <button
+            className="ml-4 bg-red-700 hover:bg-red-800 rounded-full p-1 transition-colors clickable"
+            onClick={() => setErrorMessage("")}
+          >
+            <X className="h-4 w-4 text-white" />
+          </button>
+        </div>
+      )}
+    </div>
       <div className="mt-6 flex justify-center">
         <Link href="https://docs.google.com/spreadsheets/d/1ZBZtseZf7AM3aCEWG6Ar_V0NXNWmz42aDonaYEwsd5Q/edit?usp=sharing" passHref>
           <Button className="text-black bg-white shadow-md hover:bg-white/80 hover:shadow-lg">
