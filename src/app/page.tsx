@@ -232,10 +232,14 @@ export default function FileUploadHomepage() {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
-      if (data.message === "Done") {
-        validFiles[0].status = "Success!";
-      } else {
+      if(response.ok){
+        const data = await response.json();
+        if (data.message === "Done") {
+          validFiles[0].status = "Success!";
+        } else {
+          validFiles[0].status = "Failed!";
+        }
+      } else{
         validFiles[0].status = "Failed!";
       }
     } else {
