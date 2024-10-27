@@ -285,9 +285,11 @@ export default function FileUploadHomepage() {
     };
   }, [files]);
 
-  const handleFileClick = (file: ExtendedFile) => {
+const handleFileClick = (file: ExtendedFile) => {
+  if (file.status === "Success!") {
     setSelectedFile(file);
-  };
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-100">
