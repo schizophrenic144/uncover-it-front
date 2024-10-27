@@ -160,6 +160,7 @@ export default function FileUploadHomepage() {
   function formatConfig(config: string): string {
     return config.replace(/<br>/g, '\n');
   }
+
   const getSampleData = async (selected: ExtendedFile) => {
     try {
       selected.status = "In Progress";
@@ -168,6 +169,7 @@ export default function FileUploadHomepage() {
       );
       if (!response.ok) {
         selected.status = "Failed!";
+        setErrorMessage("API is down or unreachable.");
         console.warn("API response was not ok:", response.statusText);
         return;
       }
@@ -179,14 +181,10 @@ export default function FileUploadHomepage() {
       selected.status = "Success!";
     } catch (error) {
       selected.status = "Failed!";
-      if (error instanceof TypeError && error.message === "Failed to fetch") {
-        setErrorMessage("Network error: Unable to reach the API.");
-      } else {
-        setErrorMessage("Error fetching data from the API.");
-      }
+      setErrorMessage("API is down or unreachable.");
       console.error("Error fetching data:", error);
     }
-  };  
+  };
 
   const handleFileUpload = async (fileList: FileList) => {
     if (fileList.length === 0) {
@@ -216,34 +214,40 @@ export default function FileUploadHomepage() {
 
     const sha256Hash = await calculateSha256(validFiles[0]);
     validFiles[0].sha256 = sha256Hash;
-    const sha256Response = await fetch(`https://api.uncover.us.kg/hash`, {
-      method: "POST",
-      body: JSON.stringify({ "256": sha256Hash }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const sha256Data = await sha256Response.json();
-    if (!sha256Data.exists) {
-      const formData = new FormData();
-      if (sha256Hash) {
-        formData.append("file", validFiles[0]);
-        formData.append("256", sha256Hash);
-      }
-      const response = await fetch(`https://api.uncover.us.kg/upload`, {
+    try {
+      const sha256Response = await fetch(`https://api.uncover.us.kg/hash`, {
         method: "POST",
-        body: formData,
+        body: JSON.stringify({ "256": sha256Hash }),
+        headers: { "Content-Type": "application/json" },
       });
-      if(response.ok){
-        const data = await response.json();
-        if (data.message === "Done") {
-          validFiles[0].status = "Success!";
-        } else {
+      const sha256Data = await sha256Response.json();
+      if (!sha256Data.exists) {
+        const formData = new FormData();
+        if (sha256Hash) {
+          formData.append("file", validFiles[0]);
+          formData.append("256", sha256Hash);
+        }
+        const response = await fetch(`https://api.uncover.us.kg/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        if(response.ok){
+          const data = await response.json();
+          if (data.message === "Done") {
+            validFiles[0].status = "Success!";
+          } else {
+            validFiles[0].status = "Failed!";
+          }
+        } else{
           validFiles[0].status = "Failed!";
         }
-      } else{
-        validFiles[0].status = "Failed!";
+      } else {
+        validFiles[0].status = "Success!";
       }
-    } else {
-      validFiles[0].status = "Success!";
+    } catch (error) {
+      validFiles[0].status = "Failed!";
+      setErrorMessage("API is down or unreachable.");
+      console.error("Error during file upload:", error);
     }
     setFiles((prevFiles) => [...prevFiles]);
   };
@@ -293,11 +297,11 @@ export default function FileUploadHomepage() {
     };
   }, [files]);
 
-const handleFileClick = (file: ExtendedFile) => {
-  if (file.status === "Success!") {
-    setSelectedFile(file);
-  }
-};
+  const handleFileClick = (file: ExtendedFile) => {
+    if (file.status === "Success!") {
+      setSelectedFile(file);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
