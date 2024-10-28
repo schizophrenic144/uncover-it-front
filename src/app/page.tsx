@@ -36,6 +36,12 @@ interface ExtendedFile extends File {
 
 // Navbar Component
 function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen((prev) => !prev);
+  };
+
   return (
     <nav className="sticky top-10 z-10 mx-auto max-w-3xl mt-0">
       <div className="backdrop-blur-md bg-white/70 border border-gray-200 rounded-full px-4">
@@ -44,7 +50,7 @@ function Navbar() {
             <Link href="/" className="flex-shrink-0">
               <span className="text-lg font-bold">Uncover it</span>
             </Link>
-            <div className="flex items-baseline space-x-4">
+            <div className="hidden md:flex items-baseline space-x-4">
               <Link
                 href="/"
                 className="text-gray-800 hover:bg-gray-200 px-3 py-2 rounded-md text-sm font-medium"
@@ -58,12 +64,57 @@ function Navbar() {
                 About
               </Link>
               <Link
+                href="https://status.uncover.us.kg"
+                target="_blank"
+                className="text-gray-800 hover:bg-gray-200 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Status
+              </Link>
+              <Link
                 href="https://discord.gg/qmF4END38T"
                 className="text-gray-800 hover:bg-gray-200 px-3 py-2 rounded-md text-sm font-medium"
                 target="_blank"
               >
                 Discord
               </Link>
+            </div>
+            <div className="md:hidden">
+              <button
+                onClick={toggleMenu}
+                className="text-gray-800 hover:bg-gray-200 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Menu
+              </button>
+              {isMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
+                  <Link
+                    href="/"
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                  >
+                    Home
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                  >
+                    About
+                  </Link>
+                  <Link
+                    href="https://status.uncover.us.kg"
+                    target="_blank"
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                  >
+                    Status
+                  </Link>
+                  <Link
+                    href="https://discord.gg/qmF4END38T"
+                    target="_blank"
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                  >
+                    Discord
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
