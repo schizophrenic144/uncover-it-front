@@ -37,6 +37,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     type: "website",
   },
+  keywords: "malware, virus, security, protection, antivirus, malware config, pysilon, grabber, rat, discord rat, malware config extractor, scammer, scammer payback, what do i do if i have been hacked, free malware cofig extractor, config extractor, opensource tools, website, software, security solution",
   robots: {
     index: true,
     follow: true,
