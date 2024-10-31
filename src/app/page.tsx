@@ -580,17 +580,19 @@ export default function FileUploadHomepage() {
         </Dialog>
 
         <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
-  <DialogContent className="max-w-4xl h-[80vh] bg-gray-50 rounded-lg shadow-lg">
-    <DialogHeader>
-      <DialogTitle className="text-2xl font-bold text-center">Malware Config</DialogTitle>
-    </DialogHeader>
-    <div className="p-6 overflow-y-auto overflow-x-scroll h-full bg-white rounded-md shadow-inner"> {/* Added overflow-x-scroll */}
-      <pre className="whitespace-pre text-sm text-gray-800 leading-relaxed min-w-full"> {/* Added min-w-full */}
-        {selectedFile?.config || "No config available"}
-      </pre>
-    </div>
-  </DialogContent>
-</Dialog>
+          <DialogContent className="max-w-4xl h-[80vh] bg-gray-50 rounded-lg shadow-lg">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-center">
+                Malware Config
+              </DialogTitle>
+            </DialogHeader>
+            <div className="p-6 overflow-y-auto overflow-x-scroll h-full bg-white rounded-md shadow-inner">
+              <pre className="whitespace-pre text-sm text-gray-800 leading-relaxed min-w-full">
+                {selectedFile?.config?.trim() || "No config available"}
+              </pre>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {errorMessage && (
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-center py-3 px-6 rounded-lg shadow-lg flex items-center justify-between w-11/12 sm:w-3/4 md:w-1/2 lg:max-w-md">
