@@ -245,8 +245,8 @@ export default function FileUploadHomepage() {
 
     const newFiles = Array.from(fileList) as ExtendedFile[];
     const validFiles = newFiles.filter((file) => {
-      if (!file.name.endsWith(".exe")) {
-        setErrorMessage("Only executables (.exe) files are supported.");
+      if (!file.name.endsWith(".exe") && !file.name.endsWith(".apk")) { // Change '||' to '&&'
+        setErrorMessage("Only executables (.exe) and application files (.apk) are supported.");
         return false;
       }
       if (file.size > 100 * 1024 * 1024) {
